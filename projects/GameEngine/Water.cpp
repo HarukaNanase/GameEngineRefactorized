@@ -1,7 +1,8 @@
 #include "Water.h"
 #include "Vector2.h"
 
-Water::Water() {
+Water::Water(int X, int Y) {
+	setDimensions(X, Y);
 	initialiseReflectionFrameBuffer();
 	initialiseRefractionFrameBuffer();
 }
@@ -31,7 +32,7 @@ void Water::bindFrameBuffer(GLuint frameBuffer, const int width, const int heigh
 
 void Water::unbindCurrentFrameBuffer() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	Vector2 vp = Vector2(1280, 961);
+	Vector2 vp = Vector2(this->Width, this->Height);
 	glViewport(0, 0, vp.coordinates[0], vp.coordinates[1]);
 }
 
@@ -70,6 +71,12 @@ void Water::initialiseRefractionFrameBuffer() {
 		std::cout << "merda" << std::endl;
 }
 	
+void Water::setDimensions(int w, int h)
+{
+	this->Width = w;
+	this->Height = h;
+}
+
 GLuint Water::createTextureAttachment(const int width, const int height) {
 	GLuint texture;
 	glGenTextures(1, &texture);

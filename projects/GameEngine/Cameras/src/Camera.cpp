@@ -46,6 +46,7 @@ void Camera::MoveCamera(Direction dir, float velocity)
 		break;
 	case Left:
 		this->position -= this->right * velocity;
+		std::cout << this->position << std::endl;
 		break;
 	case Forward:
 		this->position += this->front * velocity;
@@ -100,18 +101,12 @@ Camera::~Camera()
 }
 void Camera::invertPitch()
 {
-	//this->front.coordinates[0] = -this->front.coordinates[0];
-	//invert pitch
-	//this->front.coordinates[1] = -this->front.coordinates[1];
-	//Matrix4 rot = Matrix4::RodriguesRotation(Vector3(1, 0, 0), 90);
-	//this->front = Matrix3::ConvertFromMatrix4(rot) * this->front;
 	this->front.coordinates[1] = -this->front.coordinates[1];
-	//this->front.coordinates[0] = -this->front.coordinates[0];
 	this->right = -this->right;
 
-	//invert right to left
-	//this->right = -this->right;
-//	this->currentUp = Vector3::crossProduct(Vector3::crossProduct(this->front, Vector3(0, 1, 0)), this->front);
-	//invert down to up?
+	this->currentUp.coordinates[0] = -this->currentUp.coordinates[0];
+
+	this->currentUp.coordinates[2] = -this->currentUp.coordinates[2];
+	
 
 }

@@ -9,9 +9,9 @@ public:
 
 	int REFRACTION_WIDTH = 1280;
 	int REFRACTION_HEIGHT = 720;
-
 	
-	Water ();
+	
+	Water (int x, int y);
 	void bindReflectionBuffer();
 	void bindRefractionBuffer();
 	void unbindCurrentFrameBuffer();
@@ -20,8 +20,10 @@ public:
 	GLuint getRefractionDepthTexture();
 	~Water();
 
+	void setDimensions(int w, int h);
 private:
-
+	int Width;
+	int Height;
 	GLuint reflectionFrameBuffer;
 	GLuint reflectionTexture;
 	GLuint reflectionDepthBuffer;
@@ -36,7 +38,6 @@ private:
 	GLuint createFrameBuffer();
 	void bindFrameBuffer(GLuint frameBuffer, const int width, const int height);
 	
-
 	GLuint createTextureAttachment(int width, int height);
 	GLuint createDepthTextureAttachment(const int width, const int height);
 	GLuint createDepthBufferAttachment(const int width, const int height);

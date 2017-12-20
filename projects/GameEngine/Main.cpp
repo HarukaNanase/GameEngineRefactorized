@@ -28,7 +28,7 @@ Shader* normal;
 #define TRANSLATE(x,y,z) Matrix4::TRANSLATE(x,y,z)
 //QuaternionCamera camera = QuaternionCamera(Vector3(0,0,-5));
 Matrix4 ProjectionMatrix = Matrix4::ProjectionMatrix(PI/6, 640.0f / 480.0f, 1, 50);
-Camera camera = Camera(Vector3(5, 10, 5), Vector3(0, 0, 0));
+Camera camera = Camera(Vector3(0, 1, 5), Vector3(0, 0, 0));
 Mouse* mouse;
 Water* water;
 SceneNode* waterNode;
@@ -192,27 +192,30 @@ void ControlCamera() {
 	if (Keyboard::getInstance()->isKeyPressed('w'))
 	{
 		SceneManager::getInstance()->get("main")->FreeCamera->MoveCamera(Direction::Forward, deltaTime);
+		//std::cout << SceneManager::getInstance()->get("main")->FreeCamera->GetCamera() << std::endl;
 	}
 	if (Keyboard::getInstance()->isKeyPressed('s')) {
 		SceneManager::getInstance()->get("main")->FreeCamera->MoveCamera(Direction::Backward, deltaTime);
+		//std::cout << SceneManager::getInstance()->get("main")->FreeCamera->GetCamera() << std::endl;
 
 	}
 	if (Keyboard::getInstance()->isKeyPressed('a')) {
 		SceneManager::getInstance()->get("main")->FreeCamera->MoveCamera(Direction::Left, deltaTime);
+		//std::cout << SceneManager::getInstance()->get("main")->FreeCamera->GetCamera() << std::endl;
 	}
 	if (Keyboard::getInstance()->isKeyPressed('d')) {
 		SceneManager::getInstance()->get("main")->FreeCamera->MoveCamera(Direction::Right, deltaTime);
+		//std::cout << SceneManager::getInstance()->get("main")->FreeCamera->GetCamera() << std::endl;
 
 	}
 	if (Keyboard::getInstance()->isKeyPressed('q')) {
 
-		float AngleZ = 360.0f*0.25f;
-		//SceneManager::getInstance()->get("main")->getCamera()->ChangeOrientation(AngleZ, Vector4(0, 0, 1, 1));
+		SceneManager::getInstance()->get("main")->FreeCamera->MoveCamera(Direction::Up, deltaTime);
+		//std::cout << SceneManager::getInstance()->get("main")->FreeCamera->GetCamera() << std::endl;
 	}
 	if (Keyboard::getInstance()->isKeyPressed('e')) {
-
-		float AngleZ = -360.0f*0.25f;
-		//SceneManager::getInstance()->get("main")->getCamera()->ChangeOrientation(AngleZ, Vector4(0, 0, 1, 1));
+		SceneManager::getInstance()->get("main")->FreeCamera->MoveCamera(Direction::Down, deltaTime);
+		//std::cout << SceneManager::getInstance()->get("main")->FreeCamera->GetCamera() << std::endl;
 	}
 	if (Keyboard::getInstance()->isKeyPressed('m')) {
 	//	envoirnment->ChangeDirection(deltaTime* 360.0f, Vector4(0, 1, 0, 1));
@@ -364,6 +367,7 @@ void reshape(int w, int h)
 	WinX = w;
 	WinY = h;
 	glViewport(0, 0, WinX, WinY);
+	water->setDimensions(WinX, WinY);
 }
 
 void timer(int value)
@@ -503,7 +507,7 @@ void init(int argc, char* argv[])
 	currentPath = argv[0];
 	std::cout << currentPath << std::endl;
 	vec3 vec = vec3(0, 0, 0);
-	water = new Water();
+	water = new Water(WinX, WinY);
 }
 using namespace Managers;
 int main(int argc, char** argv) {
