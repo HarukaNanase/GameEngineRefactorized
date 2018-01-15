@@ -13,22 +13,25 @@
 #include "Water.h"
 
 using namespace Managers;
-
+#define CUBE_MAP_FOLDER "Assets/Textures/cubemap/"
 #define VERTICES 0
 std::string currentPath;
 int WinX = 640, WinY = 480;
 int WindowHandle = 0;
 unsigned int FrameCount = 0;
-#define CAPTION "Hello Modern 3D World"
+#define CAPTION "Solha's Engine Copyright @ Solha"
 Shader* shader;
 Shader* waterShader;
 Shader* normal;
+Shader* normalDebugger;
+Shader* noTexDebugger;
+Shader* skyBoxShader;
 #define PI 3.14159265358979323846
 #define SCALE(x,y,z) Matrix4::SCALE(x,y,z)
 #define TRANSLATE(x,y,z) Matrix4::TRANSLATE(x,y,z)
 //QuaternionCamera camera = QuaternionCamera(Vector3(0,0,-5));
 Matrix4 ProjectionMatrix = Matrix4::ProjectionMatrix(PI/6, 640.0f / 480.0f, 1, 50);
-Camera camera = Camera(Vector3(0, 1, 5), Vector3(0, 0, 0));
+Camera camera = Camera(Vector3(0, 0, 5), Vector3(0, 0, 0));
 Mouse* mouse;
 Water* water;
 SceneNode* waterNode;
@@ -37,11 +40,12 @@ float currentTime = 0, deltaTime = 0, previousTime = 0;
 
 SceneNode* envoirnment, *tangram;
 bool Rewind = false;
-
+bool DEBUG = false;
+bool msaa = false;
 SceneNode *first, *second, *third, *fourth, *fifth, *sixth, *seventh;
 SceneNode *cube;
 SceneNode * lightSphere;
-Vector3 LightPosition(0.0,2.5f,5.0f);
+Vector3 LightPosition(0.f,0.f,5.0f);
 
 /////////////////////////////////////////////////////////////////////// ERRORS
 
@@ -84,14 +88,18 @@ void checkOpenGLError(std::string error)
 void createShaderProgram()
 {
 	shader = new Shader();
-	shader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/blinn_phong_vert.glsl");
-	shader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/blinn_phong_frag.glsl");
+	shader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/NormalMapping/normal_vert_refact.glsl");
+	shader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/NormalMapping/normal_frag_refact.glsl");
+	//shader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_vert.glsl");
+	//shader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_frag.glsl");
 	shader->Prepare();
 	shader->Attach(GL_VERTEX_SHADER);
 	shader->Attach(GL_FRAGMENT_SHADER);
 	shader->BindAttribute(VERTICES, "inPosition");
 	shader->BindAttribute(TEXCOORDS, "inTexCoord");
 	shader->BindAttribute(NORMALS, "inNormal");
+	shader->BindAttribute(TANGENTS, "inTangent");
+	shader->BindAttribute(BITANGENTS, "inBiTangent");
 	shader->Link();
 	shader->AddUniform("ModelMatrix");
 	shader->AddUniform("ViewMatrix");
@@ -99,6 +107,7 @@ void createShaderProgram()
 	shader->AddUniform("LightPosition");
 	shader->AddUniform("NormalMatrix");
 	shader->AddUniform("tex");
+	shader->AddUniform("normalMap");
 	shader->AddUniform("material");
 
 	waterShader = new Shader();
@@ -131,41 +140,141 @@ void createShaderProgram()
 	normal->AddUniform("ViewMatrix");
 	normal->AddUniform("ProjectionMatrix");
 
+	normalDebugger = new Shader();
+	//normalDebugger->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/NormalMapping/normal_vert_refact.glsl");
+	//normalDebugger->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/NormalMapping/normal_frag_refact_debug.glsl");
+	normalDebugger->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_vert.glsl");
+	normalDebugger->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_frag.glsl");
+	normalDebugger->Prepare();
+	normalDebugger->Attach(GL_VERTEX_SHADER);
+	normalDebugger->Attach(GL_FRAGMENT_SHADER);
+	normalDebugger->BindAttribute(VERTICES, "inPosition");
+	normalDebugger->BindAttribute(TEXCOORDS, "inTexCoord");
+	normalDebugger->BindAttribute(NORMALS, "inNormal");
+	normalDebugger->BindAttribute(TANGENTS, "inTangent");
+	normalDebugger->BindAttribute(BITANGENTS, "inBiTangent");
+	normalDebugger->Link();
+	normalDebugger->AddUniform("ModelMatrix");
+	normalDebugger->AddUniform("ViewMatrix");
+	normalDebugger->AddUniform("ProjectionMatrix");
+	normalDebugger->AddUniform("LightPosition");
+	normalDebugger->AddUniform("NormalMatrix");
+	normalDebugger->AddUniform("tex");
+	normalDebugger->AddUniform("normalMap");
+	normalDebugger->AddUniform("material");
 
+	noTexDebugger = new Shader();
+	noTexDebugger->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/NormalMapping/normal_vert_refact.glsl");
+	noTexDebugger->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/NormalMapping/normal_frag_refact_debug_notex.glsl");
+	//shader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_vert.glsl");
+	//shader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_frag.glsl");
+	noTexDebugger->Prepare();
+	noTexDebugger->Attach(GL_VERTEX_SHADER);
+	noTexDebugger->Attach(GL_FRAGMENT_SHADER);
+	noTexDebugger->BindAttribute(VERTICES, "inPosition");
+	noTexDebugger->BindAttribute(TEXCOORDS, "inTexCoord");
+	noTexDebugger->BindAttribute(NORMALS, "inNormal");
+	noTexDebugger->BindAttribute(TANGENTS, "inTangent");
+	noTexDebugger->BindAttribute(BITANGENTS, "inBiTangent");
+	noTexDebugger->Link();
+	noTexDebugger->AddUniform("ModelMatrix");
+	noTexDebugger->AddUniform("ViewMatrix");
+	noTexDebugger->AddUniform("ProjectionMatrix");
+	noTexDebugger->AddUniform("LightPosition");
+	noTexDebugger->AddUniform("NormalMatrix");
+	noTexDebugger->AddUniform("tex");
+	noTexDebugger->AddUniform("normalMap");
+	noTexDebugger->AddUniform("material");
 
+	skyBoxShader = new Shader();
+	skyBoxShader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/skybox/skybox_vert.glsl");
+	skyBoxShader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/skybox/skybox_frag.glsl");
+	skyBoxShader->Prepare();
+	skyBoxShader->Attach(GL_VERTEX_SHADER);
+	skyBoxShader->Attach(GL_FRAGMENT_SHADER);
+	skyBoxShader->BindAttribute(VERTICES, "inPosition");
+	skyBoxShader->Link();
+	skyBoxShader->AddUniform("ViewMatrix");
+	skyBoxShader->AddUniform("ProjectionMatrix");
+	skyBoxShader->AddUniform("skybox");
 }
 //MOUSE AND KEYBOARD INPUTS
+void createSimpleMesh()
+{
+	MeshManager::getInstance()->create("Assets/Models/barrel2.obj", "cube");
+}
+
+void createSimpleScene()
+{
+	SceneGraph* main = SceneManager::getInstance()->create("main");
+	SkyBox* box = new SkyBox({"morning_rt.tga","morning_lt.tga","morning_up.tga","morning_dn.tga",
+		"morning_bk.tga","morning_ft.tga"});
+	box->setSkyBoxShader(skyBoxShader);
+	main->setSkyBox(box);
+
+	main->getRoot()->setShaderProgram(shader);
+	camera.setProjectionMatrix(ProjectionMatrix);
+	main->FreeCamera = &camera;
+	Texture* tex1 = new Texture();
+	//tex1->LoadTexture("Assets/Textures/brickwall.jpg");
+	tex1->LoadTexture("Assets/Textures/barrel.png");
+	Material* mat = new Material();
+	Texture* tex2 = new Texture();
+	//tex2->LoadTexture("Assets/Textures/normal_mapping_normal_map.png");
+	tex2->LoadTexture("Assets/Textures/barrelNormal.png");
+	mat->LoadMaterial("Assets/Models/ground2.mtl");
+
+	cube = main->createNode();
+	cube->setMesh(MeshManager::getInstance()->get("cube"));
+	cube->setMatrix(Matrix4::SCALE(1.0, 1.0, 1.0) * cube->GetModelMatrix());
+	cube->material = mat;
+	cube->tex = tex1;
+	//cube->tex2 = tex2;
+}
 
 void createMesh()
 {
-	MeshManager::getInstance()->create("Assets/Models/kled.obj", "sphere");
+	//MeshManager::getInstance()->create("Assets/Models/kled.obj", "sphere");
 	MeshManager::getInstance()->create("Assets/Models/treeuv.obj", "tree");
-	MeshManager::getInstance()->create("Assets/Models/jinx.obj", "jinx");
+//	MeshManager::getInstance()->create("Assets/Models/jinx.obj", "jinx");
 	MeshManager::getInstance()->create("Assets/Models/waterPlane.obj", "water");
 	
 }
 void createCubeScene() {
 	SceneGraph* main = SceneManager::getInstance()->create("main");
+	SkyBox* box = new SkyBox({ 
+		"Assets/Textures/cubemap/morning_rt.tga",
+		"Assets/Textures/cubemap/morning_lf.tga",
+		"Assets/Textures/cubemap/morning_up.tga",
+		"Assets/Textures/cubemap/morning_dn.tga",
+		"Assets/Textures/cubemap/morning_bk.tga",
+		"Assets/Textures/cubemap/morning_ft.tga" 
+	});
+	box->setSkyBoxShader(skyBoxShader);
+	main->setSkyBox(box);
+
 	main->getRoot()->setShaderProgram(shader);
-	camera.setProjectionMatrix(ProjectionMatrix);
+	(&camera)->setProjectionMatrix(ProjectionMatrix);
 	main->FreeCamera = &camera;
 	Material* material = new Material();
-	material->LoadMaterial("Assets/Models/treeuv_real.mtl");
-	//Texture* tex1 = new Texture();
-	//tex1->LoadTexture("Assets/Textures/kled.tga");
+	material->LoadMaterial("Assets/Models/untitled.mtl");
+	Texture* tex1 = new Texture();
+	tex1->LoadTexture("Assets/Textures/BarkBurned001_COL_1K.jpg");
 
 	cube = main->createNode();
 	cube->material = material;
 	//cube->tex = tex1;
-	cube->setMesh(MeshManager::getInstance()->get("jinx"));
-	cube->setMatrix(Matrix4::TRANSLATE(0,0,0)*Matrix4::SCALE(0.005, 0.005, 0.005) * cube->GetModelMatrix());
+	cube->setMesh(MeshManager::getInstance()->get("tree"));
+	cube->setMatrix(cube->GetModelMatrix());
 	Texture* tex2 = new Texture();
-	tex2->LoadTexture("Assets/Textures/b_jinx.tga");
-	//cube->tex = tex2;
-	//SceneNode* jinx = cube->createNode();
-	//jinx->tex = tex2;
-	//jinx->setMesh(MeshManager::getInstance()->get("jinx"));
-	
+	tex2->LoadTexture("Assets/Textures/BarkBurned001_NRM_1K.jpg");
+	cube->tex = tex1;
+	cube->tex2 = tex2;
+	cube->setActive(false);
+	//SceneNode* jinx = main->createNode();
+	//jinx->tex = tex1;
+	//jinx->setMesh(MeshManager::getInstance()->get("sphere"));
+	//jinx->setMatrix(Matrix4::TRANSLATE(0, 0, 0)*Matrix4::SCALE(0.005, 0.005, 0.005) * jinx->GetModelMatrix());
 	waterNode = main->createNode();
 	waterNode->setMesh(MeshManager::getInstance()->get("water"));
 	waterNode->setMatrix(Matrix4::TRANSLATE(0, 0, 0) *Matrix4::SCALE(5, 1, 5) * waterNode->GetModelMatrix());
@@ -285,13 +394,25 @@ void updateMatrixes() {
 	glUniformMatrix4fv(normal->getUniform("ViewMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetCamera().data);
 	glUniformMatrix4fv(normal->getUniform("ProjectionMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetProjectionMatrix().data);
 	normal->Disable();
+	normalDebugger->Enable();
+	glUniformMatrix4fv(normalDebugger->getUniform("ViewMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetCamera().data);
+	glUniformMatrix4fv(normalDebugger->getUniform("ProjectionMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetProjectionMatrix().data);
+	normalDebugger->Disable();
+	noTexDebugger->Enable();
+	glUniformMatrix4fv(noTexDebugger->getUniform("ViewMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetCamera().data);
+	glUniformMatrix4fv(noTexDebugger->getUniform("ProjectionMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetProjectionMatrix().data);
+	noTexDebugger->Disable();
+	skyBoxShader->Enable();
+	glUniformMatrix4fv(skyBoxShader->getUniform("ViewMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetCamera().data);
+	glUniformMatrix4fv(skyBoxShader->getUniform("ProjectionMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetProjectionMatrix().data);
+	skyBoxShader->Disable();
 
 }
 
-void drawScene()
+void drawSceneWithReflections()
 {
 	SceneGraph* sceneGraph = SceneManager::getInstance()->get("main");
-	
+
 	glEnable(GL_CLIP_DISTANCE0);
 	waterNode->setActive(false);
 	water->bindReflectionBuffer();
@@ -303,8 +424,6 @@ void drawScene()
 	shader->Enable();
 	glUniform4f(shader->getUniform("plane"), 0, 1, 0, -0);
 	sceneGraph->Draw(LightPosition);
-
-
 	SceneManager::getInstance()->get("main")->FreeCamera->position.coordinates[1] += distance;
 	SceneManager::getInstance()->get("main")->FreeCamera->invertPitch();
 	updateMatrixes();
@@ -322,22 +441,86 @@ void drawScene()
 	waterNode->setActive(true);
 	glDisable(GL_CLIP_DISTANCE0);
 	water->unbindCurrentFrameBuffer();
+	//waterShader->Enable();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, water->getReflectionTexture());
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, water->getRefractionTexture());
 	sceneGraph->Draw(LightPosition);
+
+}
+void drawSceneWithoutReflections()
+{
+	updateMatrixes();
+	SceneManager::getInstance()->get("main")->Draw(LightPosition);
+}
+
+void drawScene()
+{
+	drawSceneWithoutReflections();
+
+	//drawSceneWithReflections();
+}
+
+void debugMode() {
+	updateMatrixes();
+	glViewport(0, 0, WinX*0.5, WinY*0.5);
+	SceneManager::getInstance()->get("main")->Draw(LightPosition);
+	glViewport(WinX*0.5, 0, WinX*0.5, WinY*0.5);
+	cube->setShaderProgram(normalDebugger);
+	SceneManager::getInstance()->get("main")->Draw(LightPosition);
+	//drawSceneWithReflections();
+	cube->setShaderProgram(shader);
+	//left top
+	glViewport(0, WinY*0.5, WinX*0.5, WinY*0.5);
 	
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_LINE_SMOOTH);
+	//glHint(GL_LINE_SMOOTH, GL_NICEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//cube->setShaderProgram(noTexDebugger);
+	SceneManager::getInstance()->get("main")->Draw(LightPosition);
+	//drawSceneWithoutReflections();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDisable(GL_LINE_SMOOTH);
+	//glDisable(GL_BLEND);
+
+	//cube->setShaderProgram(shader);
+	//wireframe mode
+	//right top
+	glViewport(WinX*0.5, WinY*0.5, WinX*0.5, WinY*0.5);
+	//glEnable(GL_POLYGON_SMOOTH);
+	glEnable(GL_MULTISAMPLE);
+	SceneManager::getInstance()->get("main")->Draw(LightPosition);;
+	//drawSceneWithReflections();
+	glDisable(GL_MULTISAMPLE);
+	//glDisable(GL_POLYGON_SMOOTH);
+	glViewport(0, 0, WinX, WinY); //restore default
 }
 
 void display()
 {
 		++FrameCount;
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		drawScene();
+		if (DEBUG) {
+			debugMode();
+		}else{
+			if (msaa)
+			{
+				glEnable(GL_MULTISAMPLE_ARB);
+			}
+			else
+			{
+				glDisable(GL_MULTISAMPLE_ARB);
+			}
+
+			drawScene();
+		}
 		glutSwapBuffers();
 }
+
 
 
 void idle()
@@ -358,7 +541,6 @@ void idle()
 	glUniformMatrix4fv(v, 1, GL_FALSE, a->GetCamera().data);
 	glUniformMatrix4fv(p, 1, GL_FALSE, a->GetProjectionMatrix().data);
 
-
 	glutPostRedisplay();
 }
 
@@ -367,7 +549,8 @@ void reshape(int w, int h)
 	WinX = w;
 	WinY = h;
 	glViewport(0, 0, WinX, WinY);
-	water->setDimensions(WinX, WinY);
+	ProjectionMatrix = Matrix4::ProjectionMatrix(PI / 6, (float)WinX / (float)WinY, 1, 500);
+	water->setDimensions(WinX , WinY);
 }
 
 void timer(int value)
@@ -385,6 +568,19 @@ void timer(int value)
 void handleKeyUp(unsigned char Key, int x, int y) {
 	Keyboard::getInstance()->releaseKey(Key);
 	switch (Key) {	
+	case '7':
+		if (msaa) {
+			std::cout << "MSAA: off" << std::endl;
+		}
+		else {
+			std::cout << "MSAA: on" << std::endl;
+		}
+		msaa = !msaa;
+		break;
+	case '<':
+		DEBUG = !DEBUG;
+		std::cout << "Debug Mode: " << DEBUG << std::endl;
+		break;
 	case '0':
 		AnimationManager::getInstance()->toggle();
 		break;
@@ -483,12 +679,22 @@ void setupGLUT(int argc, char* argv[])
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 
 	glutInitWindowSize(WinX, WinY);
-	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+
+	
+	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA | GLUT_MULTISAMPLE);
+	
 	WindowHandle = glutCreateWindow(CAPTION);
 	if (WindowHandle < 1) {
 		std::cerr << "ERROR: Could not create a new rendering window." << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	GLint data;
+	glGetIntegerv(GL_MAX_SAMPLES, &data);
+	std::cout << "Max MSAA: MSAA(x " << data << ")" << std::endl;
+	GLint maxTextureUnits;
+	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+	std::cout << "Max Number Of Texture Units: " << maxTextureUnits << std::endl;
+	glutSetOption(GLUT_MULTISAMPLE, maxTextureUnits);
 }
 
 void init(int argc, char* argv[])
@@ -498,10 +704,15 @@ void init(int argc, char* argv[])
 	setupOpenGL();
 	setupCallbacks();
 	createShaderProgram();
+	
+	//createSimpleMesh();
+	//createSimpleScene();
 	createMesh();
+	createCubeScene();
+
+	
 	//createScene();
 	//createAnimation();
-	createCubeScene();
 	previousTime = glutGet(GLUT_ELAPSED_TIME);
 	mouse = new Mouse();
 	currentPath = argv[0];

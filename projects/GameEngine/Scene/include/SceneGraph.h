@@ -4,7 +4,7 @@
 #include <vector>
 #include "SceneNode.h"
 #include "QuaternionCamera.h"
-
+#include "SkyBox.h"
 class SceneGraph
 {
 public:
@@ -26,6 +26,8 @@ public:
 	//Releases the scenegraph and all its children nodes.
 	void Release();
 	void Destroy();
+	SkyBox* skybox;
+	void setSkyBox(SkyBox* box);
 };
 
 #endif

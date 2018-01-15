@@ -33,10 +33,25 @@ Vector4 Vector4::operator+(Vector4 vector)
 }
 
 
+Vector4 Vector4::operator=(Vector4 vector)
+{
+	this->coordinates[0] = vector.coordinates[0];
+	this->coordinates[1] = vector.coordinates[1];
+	this->coordinates[2] = vector.coordinates[2];
+	this->coordinates[3] = vector.coordinates[3];
+
+	return *this;
+}
+
 bool Vector4::operator==(Vector4 vector)
 {
 	return (fabs(coordinates[0] - vector.coordinates[0]) < THRESHOLD && fabs(coordinates[1] - vector.coordinates[1]) < THRESHOLD && 
 		fabs(coordinates[2] - vector.coordinates[2]) < THRESHOLD && fabs(coordinates[3] - vector.coordinates[3]) < THRESHOLD);
+}
+
+bool Vector4::operator!=(Vector4 vector)
+{
+	return !operator==(vector);
 }
 
 Vector4 Vector4::normalize()
@@ -57,7 +72,7 @@ Vector4 Vector4::normalize()
 
 float Vector4::magnitude()
 {
-		return this->coordinates[3]*sqrt(quadrance());
+	return this->coordinates[3]*sqrt(quadrance());
 }
 
 float Vector4::quadrance()

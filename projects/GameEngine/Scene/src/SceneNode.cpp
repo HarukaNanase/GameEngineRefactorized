@@ -86,9 +86,17 @@ void SceneNode::Draw()
 			glUniformMatrix4fv(this->shaderProgram->getUniform("ModelMatrix"), 1, GL_FALSE, DrawMatrix.data);
 		}
 		if (this->mesh->HasTexs && tex != nullptr && shaderProgram->GetUniform("tex") != -1) {
-			glActiveTexture(GL_TEXTURE0+this->tex->TextureId);
+			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_2D, this->tex->TextureId);
-			glUniform1i(shaderProgram->GetUniform("tex"), 0);
+			glUniform1i(shaderProgram->GetUniform("tex"), 2);
+			
+			//glBindTexture(GL_TEXTURE_2D, 0);
+		}
+		if (this->mesh->HasTangents && tex2 != nullptr && shaderProgram->GetUniform("normalMap") != -1) {
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, this->tex2->TextureId);
+			glUniform1i(shaderProgram->GetUniform("normalMap"), 3);
+
 			//glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		if (this->material != nullptr && this->shaderProgram->getUniform("mat.shininess") != -1) {

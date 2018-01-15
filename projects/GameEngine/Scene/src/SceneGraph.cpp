@@ -37,6 +37,22 @@ void SceneGraph::setCamera(QuaternionCamera* camera)
 void SceneGraph::Draw(Vector3 LightPosition)
 {
 	//Matrix3 NormalMatrix = Matrix3::ConvertFromMatrix4(DrawMatrix).inverse().transpose();
+	if (this->skybox != nullptr) {
+		glDepthMask(GL_FALSE);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		//std::cout << "Drawing skybox cube" << std::endl;
+		this->skybox->skyboxShader->Enable();
+		this->skybox->cube->Draw();
+		//glBindVertexArray(this->skybox->cube->VaoId);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, this->skybox->skybox->textureId);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(GL_TRUE);
+		this->skybox->skyboxShader->Disable();
+	}
+
 	this->root->shaderProgram->Enable();
 	if (this->root->shaderProgram->getUniform("cameraPos") != -1)
 		glUniform3fv(this->root->shaderProgram->getUniform("cameraPos"),1, this->FreeCamera->position.coordinates);
@@ -60,4 +76,9 @@ void SceneGraph::Release()
 void SceneGraph::Destroy()
 {
 	delete(this);
+}
+
+void SceneGraph::setSkyBox(SkyBox * box)
+{
+	this->skybox = box;
 }

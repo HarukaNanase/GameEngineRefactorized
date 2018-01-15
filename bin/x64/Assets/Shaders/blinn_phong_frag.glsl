@@ -50,8 +50,8 @@ void main(){
 	//vec3 final_diffuse_color = diffuse_light;
 	//vec3 final_specular_color = specular_light;
 
-	FragmentColor = vec4(vec3(final_ambient_color + diffuse_component*final_diffuse_color + specular_component*final_specular_color), 1.0);
-	//FragmentColor = vec4(vec3(final_ambient_color + diffuse_component*final_diffuse_color + specular_component*final_specular_color), 1.0) + texture(tex, exTexCoord);
+	//FragmentColor = vec4(vec3(final_ambient_color + diffuse_component*final_diffuse_color + specular_component*final_specular_color), 1.0);
+	FragmentColor = vec4(vec3(final_ambient_color + diffuse_component*final_diffuse_color + specular_component*final_specular_color), 1.0) + texture(tex, exTexCoord);
 	
 	//FragmentColor = vec4(diffuse_component * final_diffuse_color, 1.0); // only diffuse component
 	//FragmentColor = vec4(specular_component * final_specular_color, 1.0); //only specular component

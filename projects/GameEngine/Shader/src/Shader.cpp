@@ -81,10 +81,11 @@ void Shader::Link()
 	glGetProgramiv(this->ProgramId, GL_LINK_STATUS, &result);
 	if (result == GL_FALSE) {
 		glGetProgramiv(this->ProgramId, GL_INFO_LOG_LENGTH, &logLength);
-		char* log = new char[logLength];
-		glGetShaderInfoLog(this->ProgramId, logLength, NULL, &log[0]);
-		std::cout << std::string(log,logLength) << std::endl;
-		delete log;
+		std::vector<char> v(logLength);
+		glGetShaderInfoLog(this->ProgramId, logLength, NULL, v.data());
+		std::string s(begin(v), end(v));
+		std::cout << s << std::endl;
+		//delete log;
 	}
 	this->CleanCompilation();
 }

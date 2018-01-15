@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -85,7 +85,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)Cameras\include\;$(ProjectDir)Lightning\include\;$(ProjectDir)Managers\include\;$(ProjectDir)Scene\include\;$(ProjectDir)Shader\include\;$(ProjectDir)Utils\include\;$(SolutionDir)..\dependencies\freeglut\include\;$(SolutionDir)..\dependencies\freeimage\;$(SolutionDir)..\dependencies\glew\include\;$(SolutionDir)Math\include\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)SkyBox\include\;$(ProjectDir)Cameras\include\;$(ProjectDir)Lightning\include\;$(ProjectDir)Managers\include\;$(ProjectDir)Scene\include\;$(ProjectDir)Shader\include\;$(ProjectDir)Utils\include\;$(SolutionDir)..\dependencies\freeglut\include\;$(SolutionDir)..\dependencies\freeimage\;$(SolutionDir)..\dependencies\glew\include\;$(SolutionDir)Math\include\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -105,7 +105,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)Cameras\include\;$(ProjectDir)Lightning\include\;$(ProjectDir)Managers\include\;$(ProjectDir)Scene\include\;$(ProjectDir)Shader\include\;$(ProjectDir)Utils\include\;$(SolutionDir)..\dependencies\freeglut\include\;$(SolutionDir)..\dependencies\freeimage\;$(SolutionDir)..\dependencies\glew\include\;$(SolutionDir)Math\include\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)SkyBox\include\;$(ProjectDir)Cameras\include\;$(ProjectDir)Lightning\include\;$(ProjectDir)Managers\include\;$(ProjectDir)Scene\include\;$(ProjectDir)Shader\include\;$(ProjectDir)Utils\include\;$(SolutionDir)..\dependencies\freeglut\include\;$(SolutionDir)..\dependencies\freeimage\;$(SolutionDir)..\dependencies\glew\include\;$(SolutionDir)Math\include\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(SolutionDir)Math\lib\Math.lib;$(SolutionDir)..\dependencies\freeglut\lib\x64\freeglut.lib;$(SolutionDir)..\dependencies\glew\lib\Release\x64\glew32.lib;$(SolutionDir)..\dependencies\freeimage\FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -128,6 +128,7 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Cameras\include\Camera.h" />
     <ClInclude Include="Cameras\include\QuaternionCamera.h" />
+    <ClInclude Include="CubeMap.h" />
     <ClInclude Include="Engine.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -141,6 +142,7 @@
     <ClInclude Include="Scene\include\SceneGraph.h" />
     <ClInclude Include="Scene\include\SceneNode.h" />
     <ClInclude Include="Shader\include\Shader.h" />
+    <ClInclude Include="SkyBox\include\SkyBox.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Utils\include\Convention.h" />
     <ClInclude Include="Utils\include\Keyboard.h" />
@@ -151,6 +153,7 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Cameras\src\Camera.cpp" />
     <ClCompile Include="Cameras\src\QuaternionCamera.cpp" />
+    <ClCompile Include="CubeMap.cpp" />
     <ClCompile Include="Engine.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -164,6 +167,7 @@
     <ClCompile Include="Scene\src\SceneGraph.cpp" />
     <ClCompile Include="Scene\src\SceneNode.cpp" />
     <ClCompile Include="Shader\src\Shader.cpp" />
+    <ClCompile Include="SkyBox\src\SkyBox.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Utils\src\Keyboard.cpp" />
     <ClCompile Include="Utils\src\Mouse.cpp" />

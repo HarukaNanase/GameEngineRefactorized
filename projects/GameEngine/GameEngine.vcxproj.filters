@@ -49,6 +49,12 @@
     <Filter Include="Source Files\Lightning">
       <UniqueIdentifier>{4b42533e-4704-4b7f-b83c-e949abe7992e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\SkyBox">
+      <UniqueIdentifier>{712ac254-074b-4946-b08b-9c76e519454c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SkyBox">
+      <UniqueIdentifier>{3bd67ecc-b32e-4b31-8555-68361b407aa5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cameras\include\Camera.h">
@@ -105,6 +111,12 @@
     <ClInclude Include="Water.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CubeMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyBox\include\SkyBox.h">
+      <Filter>Header Files\SkyBox</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Cameras\src\Camera.cpp">
@@ -157,6 +169,12 @@
     </ClCompile>
     <ClCompile Include="Water.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CubeMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyBox\src\SkyBox.cpp">
+      <Filter>Source Files\SkyBox</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

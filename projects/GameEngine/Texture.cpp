@@ -22,7 +22,8 @@ void Texture::LoadTexture(std::string filenameString, GLenum minificationFilter,
 	if (fileFormat == -1)
 	{
 		std::cout << "Couldn't find file -> " << filenameString << " - Aborting..." << std::endl;
-		exit(-1);
+		return;
+		//exit(-1);
 	}
 
 	if(fileFormat == FIF_UNKNOWN)
@@ -33,7 +34,7 @@ void Texture::LoadTexture(std::string filenameString, GLenum minificationFilter,
 		if(!FreeImage_FIFSupportsReading(fileFormat))
 		{
 			std::cout << "Image format cannot be read!" << std::endl;
-			exit(-1);
+			return;
 		}
 	}
 

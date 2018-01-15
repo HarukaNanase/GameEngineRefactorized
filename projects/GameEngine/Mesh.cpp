@@ -13,6 +13,7 @@ Mesh::Mesh(std::string filepath)
 	this->HasTexs = (this->TexsIdx.size() > 0);
 	this->HasNormals = (this->NormalsIdx.size() > 0);
 	this->ProcessMesh();
+
 	this->CreateBufferObjects();
 	this->FreeMeshData();
 
@@ -29,7 +30,7 @@ void Mesh::FreeMeshData()
 }
 
 void Mesh::ProcessMesh()
-{
+{	
 	for (auto i = 0; i < this->VerticesIdx.size(); i++) {
 		auto vi = this->VerticesIdx[i];
 		Vertex v = this->VerticesData[vi - 1];
@@ -45,27 +46,12 @@ void Mesh::ProcessMesh()
 			this->Normals.push_back(n);
 		}
 	}
+	if (this->HasTexs && this->HasNormals)
+		this->CalculateTangents();
 }
 
 void Mesh::Draw()
 {
-
-
-	//calculate Normal Matrix
-
-	
-	
-	/*if(shaderProgram->GetUniform("material")>0)
-	{
-		glUniform3fv(shaderProgram->GetUniform("material.ambient"), 1, Vector3(0.0f, 0.05f, 0.0f).coordinates);
-		glUniform3fv(shaderProgram->GetUniform("material.diffuse"), 1, Vector3(0.4f, 0.5f, 0.4f).coordinates);
-		glUniform3fv(shaderProgram->GetUniform("material.specular"), 1, Vector3(0.04f, 0.7f, 0.04f).coordinates);
-		glUniform1f(shaderProgram->GetUniform("material.shininess"), 0.078125);
-	}
-	*/
-	//tex shit
-	
-	//tex shit
 	glBindVertexArray(this->VaoId);
 	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->Vertices.size());
 	glBindVertexArray(0);
@@ -151,6 +137,23 @@ bool Mesh::CreateBufferObjects()
 			glEnableVertexAttribArray(NORMALS);
 			glVertexAttribPointer(NORMALS, 3, GL_FLOAT, GL_FALSE, sizeof(Normal), 0);
 		}
+		if(this->HasTangents)
+		{
+			glGenBuffers(1, &this->VboTangents);
+			glBindBuffer(GL_ARRAY_BUFFER, this->VboTangents);
+			glBufferData(GL_ARRAY_BUFFER, this->Tangents.size() * sizeof(Vector4), &Tangents[0], GL_STATIC_DRAW);
+			glEnableVertexAttribArray(TANGENTS);
+			glVertexAttribPointer(TANGENTS, 4, GL_FLOAT, GL_FALSE, sizeof(Vector4), 0);
+		}
+		if (this->HasBiTangents)
+		{
+			glGenBuffers(1, &this->VboBiTangents);
+			glBindBuffer(GL_ARRAY_BUFFER, this->VboBiTangents);
+			glBufferData(GL_ARRAY_BUFFER, this->BiTangents.size() * sizeof(Vector3), &BiTangents[0], GL_STATIC_DRAW);
+			glEnableVertexAttribArray(BITANGENTS);
+			glVertexAttribPointer(BITANGENTS, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), 0);
+		}
+
 
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -191,5 +194,62 @@ void Mesh::ParseLine(std::stringstream & in)
 		parseFaces(in);
 	else if (s == "#")
 		parseComments(in);
+	
+}
+
+
+void Mesh::CalculateTangents()
+{
+	Vector4* tan1 = new Vector4[this->Vertices.size() * 2];
+	Vector4* tan2 = tan1 + this->Vertices.size();
+	ZeroMemory(tan1, this->Vertices.size() * sizeof(Vector3) * 2);
+
+	for(int i= 0; i < this->Vertices.size(); i+=3)
+	{
+		Vector3 v0 = this->Vertices[i + 0];
+		Vector3 v1 = this->Vertices[i + 1];
+		Vector3 v2 = this->Vertices[i + 2];
+
+		Vector2 uv0 = this->Texs[i + 0];
+		Vector2 uv1 = this->Texs[i + 1];
+		Vector2 uv2 = this->Texs[i + 2];
+
+		Vector3 deltaPos1 = v1 - v0;
+		Vector3 deltaPos2 = v2 - v0;
+
+		Vector2 deltaUV1 = uv1 - uv0;
+		Vector2 deltaUV2 = uv2 - uv0;
+
+
+		float r = 1.0f / (deltaUV1.coordinates[0] * deltaUV2.coordinates[1] - deltaUV1.coordinates[1] * deltaUV2.coordinates[0]);
+
+		Vector3 tangent = (deltaPos1 * deltaUV2.coordinates[1] - deltaPos2 * deltaUV1.coordinates[1])*r;
+
+		Vector3 bitangent = (deltaPos2 * deltaUV1.coordinates[0] - deltaPos1 * deltaUV2.coordinates[0])*r;
+
+		this->Tangents.push_back(tangent);
+		this->Tangents.push_back(tangent);
+		this->Tangents.push_back(tangent);
+
+		this->BiTangents.push_back(bitangent);
+		this->BiTangents.push_back(bitangent);
+		this->BiTangents.push_back(bitangent);
+
+	}
+
+	for (long a = 0; a < this->Vertices.size(); a++)
+	{
+		Vector3 n = this->Normals[a];
+		Vector4 t = this->Tangents[a];
+		Vector3 t3d = Vector3(t.coordinates[0], t.coordinates[1], t.coordinates[2]);
+		//Gram Schmidt orthogonalize
+		this->Tangents[a] = ((t3d - (n*t3d)*n)).normalize();
+		Vector3 tan2_3d = Vector3(tan1[this->Vertices.size() + a].coordinates[0], tan1[this->Vertices.size() + a].coordinates[1], tan1[this->Vertices.size() + a].coordinates[2]);
+		this->Tangents[a].coordinates[3] = ((Vector3::crossProduct(n, t3d)*tan2_3d) < 0.0f) ? -1.0f : 1.0f;
+	}
+	this->HasTangents = (this->Tangents.size() > 0);
+	this->HasBiTangents = (this->BiTangents.size() > 0);
+
+	delete[] tan1;
 	
 }

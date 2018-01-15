@@ -28,6 +28,7 @@ public:
 	void ChangeDirection(float angle, Vector4 axis);
 	//Texture of this node
 	Texture* tex;
+	Texture* tex2;
 	//Material of this node
 	Material* material;
 	//Set Active - False->Won't be drawn; True->Will be drawn;
