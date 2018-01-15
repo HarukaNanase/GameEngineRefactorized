@@ -85,17 +85,17 @@ void SceneNode::Draw()
 		if (this->shaderProgram->getUniform("ModelMatrix") != -1) {
 			glUniformMatrix4fv(this->shaderProgram->getUniform("ModelMatrix"), 1, GL_FALSE, DrawMatrix.data);
 		}
-		if (this->mesh->HasTexs && tex != nullptr && shaderProgram->GetUniform("tex") != -1) {
+		if (this->mesh->HasTexs && tex != nullptr && shaderProgram->getUniform("tex") != -1) {
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_2D, this->tex->TextureId);
-			glUniform1i(shaderProgram->GetUniform("tex"), 2);
+			glUniform1i(shaderProgram->getUniform("tex"), 2);
 			
 			//glBindTexture(GL_TEXTURE_2D, 0);
 		}
-		if (this->mesh->HasTangents && tex2 != nullptr && shaderProgram->GetUniform("normalMap") != -1) {
+		if (this->mesh->HasTangents && tex2 != nullptr && shaderProgram->getUniform("normalMap") != -1) {
 			glActiveTexture(GL_TEXTURE3);
 			glBindTexture(GL_TEXTURE_2D, this->tex2->TextureId);
-			glUniform1i(shaderProgram->GetUniform("normalMap"), 3);
+			glUniform1i(shaderProgram->getUniform("normalMap"), 3);
 
 			//glBindTexture(GL_TEXTURE_2D, 0);
 		}

@@ -125,6 +125,7 @@ void createShaderProgram()
 	GLuint refraction = waterShader->getUniform("RefractionTexture");
 	glUniform1i(reflection, 0);
 	glUniform1i(refraction, 1);
+	waterShader->AddUniform("tex");
 	waterShader->Disable();
 	normal = new Shader();
 	normal->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/cube_vs.glsl");
@@ -243,12 +244,12 @@ void createMesh()
 void createCubeScene() {
 	SceneGraph* main = SceneManager::getInstance()->create("main");
 	SkyBox* box = new SkyBox({ 
-		"Assets/Textures/cubemap/right.tga",
-		"Assets/Textures/cubemap/left.tga",
-		"Assets/Textures/cubemap/down.tga",
-		"Assets/Textures/cubemap/up.tga",
-		"Assets/Textures/cubemap/back.tga",
-		"Assets/Textures/cubemap/front.tga" 
+		"Assets/Textures/cubemap/right.jpg"
+		"Assets/Textures/cubemap/left.jpg",
+		"Assets/Textures/cubemap/top.jpg",
+		"Assets/Textures/cubemap/bottom.jpg",
+		"Assets/Textures/cubemap/back.jpg",
+		"Assets/Textures/cubemap/front.jpg" 
 	});
 	box->setSkyBoxShader(skyBoxShader);
 	main->setSkyBox(box);
@@ -278,12 +279,14 @@ void createCubeScene() {
 	waterNode = main->createNode();
 	waterNode->setMesh(MeshManager::getInstance()->get("water"));
 	waterNode->setMatrix(Matrix4::TRANSLATE(0, 0, 0) *Matrix4::SCALE(5, 1, 5) * waterNode->GetModelMatrix());
-
+	Texture* dudv = new Texture();
+	dudv->LoadTexture("Assets/Textures/waterDUDV.png");
+	waterNode->tex = dudv;
 	waterNode->ChangeDirection(0, Vector4(1, 0, 0, 1));
 //	waterNode->setColor(Vec4(0.08, 0.05, 0.9, 1));
 	waterNode->setShaderProgram(waterShader);
 	waterNode->setActive(false);
-
+	//cube->tex2 = dudv;
 
 	SceneNode* underWater = main->createNode();
 	underWater->setMesh(MeshManager::getInstance()->get("water"));
