@@ -141,10 +141,10 @@ void createShaderProgram()
 	normal->AddUniform("ProjectionMatrix");
 
 	normalDebugger = new Shader();
-	//normalDebugger->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/NormalMapping/normal_vert_refact.glsl");
-	//normalDebugger->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/NormalMapping/normal_frag_refact_debug.glsl");
-	normalDebugger->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_vert.glsl");
-	normalDebugger->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_frag.glsl");
+	normalDebugger->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/NormalMapping/normal_vert_refact.glsl");
+	normalDebugger->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/NormalMapping/normal_frag_refact_debug.glsl");
+	//normalDebugger->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_vert.glsl");
+	//normalDebugger->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_frag.glsl");
 	normalDebugger->Prepare();
 	normalDebugger->Attach(GL_VERTEX_SHADER);
 	normalDebugger->Attach(GL_FRAGMENT_SHADER);
@@ -207,8 +207,8 @@ void createSimpleMesh()
 void createSimpleScene()
 {
 	SceneGraph* main = SceneManager::getInstance()->create("main");
-	SkyBox* box = new SkyBox({"morning_rt.tga","morning_lt.tga","morning_up.tga","morning_dn.tga",
-		"morning_bk.tga","morning_ft.tga"});
+	SkyBox* box = new SkyBox({"right.tga","left.tga","up.tga","down.tga",
+		"back.tga","front.tga"});
 	box->setSkyBoxShader(skyBoxShader);
 	main->setSkyBox(box);
 
@@ -243,12 +243,12 @@ void createMesh()
 void createCubeScene() {
 	SceneGraph* main = SceneManager::getInstance()->create("main");
 	SkyBox* box = new SkyBox({ 
-		"Assets/Textures/cubemap/morning_rt.tga",
-		"Assets/Textures/cubemap/morning_lf.tga",
-		"Assets/Textures/cubemap/morning_up.tga",
-		"Assets/Textures/cubemap/morning_dn.tga",
-		"Assets/Textures/cubemap/morning_bk.tga",
-		"Assets/Textures/cubemap/morning_ft.tga" 
+		"Assets/Textures/cubemap/right.tga",
+		"Assets/Textures/cubemap/left.tga",
+		"Assets/Textures/cubemap/down.tga",
+		"Assets/Textures/cubemap/up.tga",
+		"Assets/Textures/cubemap/back.tga",
+		"Assets/Textures/cubemap/front.tga" 
 	});
 	box->setSkyBoxShader(skyBoxShader);
 	main->setSkyBox(box);
@@ -270,7 +270,7 @@ void createCubeScene() {
 	tex2->LoadTexture("Assets/Textures/BarkBurned001_NRM_1K.jpg");
 	cube->tex = tex1;
 	cube->tex2 = tex2;
-	cube->setActive(false);
+	cube->setActive(true);
 	//SceneNode* jinx = main->createNode();
 	//jinx->tex = tex1;
 	//jinx->setMesh(MeshManager::getInstance()->get("sphere"));
@@ -458,9 +458,9 @@ void drawSceneWithoutReflections()
 
 void drawScene()
 {
-	drawSceneWithoutReflections();
+//	drawSceneWithoutReflections();
 
-	//drawSceneWithReflections();
+	drawSceneWithReflections();
 }
 
 void debugMode() {
@@ -546,10 +546,12 @@ void idle()
 
 void reshape(int w, int h)
 {
+	Texture* t = new Texture();
 	WinX = w;
 	WinY = h;
 	glViewport(0, 0, WinX, WinY);
-	ProjectionMatrix = Matrix4::ProjectionMatrix(PI / 6, (float)WinX / (float)WinY, 1, 500);
+	ProjectionMatrix = Matrix4::ProjectionMatrix(PI/6, (float)WinX / (float)WinY, 1, 50);
+	SceneManager::getInstance()->get("main")->FreeCamera->setProjectionMatrix(ProjectionMatrix);
 	water->setDimensions(WinX , WinY);
 }
 
