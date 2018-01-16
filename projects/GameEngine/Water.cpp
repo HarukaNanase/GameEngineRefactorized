@@ -115,6 +115,17 @@ GLuint Water::createDepthBufferAttachment(const int width, const int height) {
 		std::cout << "merda" << std::endl;
 	return  depthBuffer;
 }
+void Water::calculateMoveFactor(const GLint uniform, const float deltaTime) {
+
+	moveFactor += WATER_SPEED * deltaTime;
+	if (moveFactor >= 1) moveFactor = 0.f;
+	glUniform1f(uniform, moveFactor);
+}
+
+void Water::sendCameraPosition(GLint uniform, const Vector3 pos) {
+	glUniform3fv(uniform, 1, pos.coordinates);
+}
+
 
 void Water::cleanUp() {
 	glDeleteFramebuffers(1, &reflectionFrameBuffer);

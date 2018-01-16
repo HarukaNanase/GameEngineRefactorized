@@ -111,8 +111,8 @@ void createShaderProgram()
 	shader->AddUniform("material");
 
 	waterShader = new Shader();
-	waterShader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/Water.vert");
-	waterShader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/Water.frag");
+	waterShader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/dudvwater/Water.vert");
+	waterShader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/dudvwater/Water.frag");
 	waterShader->Prepare();
 	waterShader->Attach(GL_VERTEX_SHADER);
 	waterShader->Attach(GL_FRAGMENT_SHADER);
@@ -125,7 +125,6 @@ void createShaderProgram()
 	GLuint refraction = waterShader->getUniform("RefractionTexture");
 	glUniform1i(reflection, 0);
 	glUniform1i(refraction, 1);
-	waterShader->AddUniform("tex");
 	waterShader->Disable();
 	normal = new Shader();
 	normal->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/cube_vs.glsl");
@@ -239,20 +238,21 @@ void createMesh()
 	MeshManager::getInstance()->create("Assets/Models/treeuv.obj", "tree");
 //	MeshManager::getInstance()->create("Assets/Models/jinx.obj", "jinx");
 	MeshManager::getInstance()->create("Assets/Models/waterPlane.obj", "water");
+	MeshManager::getInstance()->create("Assets/Models/barrel.obj", "barrel");
 	
 }
 void createCubeScene() {
 	SceneGraph* main = SceneManager::getInstance()->create("main");
 	SkyBox* box = new SkyBox({ 
-		"Assets/Textures/cubemap/right.jpg"
-		"Assets/Textures/cubemap/left.jpg",
-		"Assets/Textures/cubemap/top.jpg",
-		"Assets/Textures/cubemap/bottom.jpg",
-		"Assets/Textures/cubemap/back.jpg",
-		"Assets/Textures/cubemap/front.jpg" 
+		"Assets/Textures/cubemap/lagoon_rt.tga",    //right
+		"Assets/Textures/cubemap/lagoon_lf.tga",     //left
+		"Assets/Textures/cubemap/lagoon_dn.tga",	//bottom
+		"Assets/Textures/cubemap/lagoon_up.tga",		//top
+		"Assets/Textures/cubemap/lagoon_bk.tga",		//back
+		"Assets/Textures/cubemap/lagoon_ft.tga"		//front
 	});
 	box->setSkyBoxShader(skyBoxShader);
-	main->setSkyBox(box);
+	//main->setSkyBox(box);
 
 	main->getRoot()->setShaderProgram(shader);
 	(&camera)->setProjectionMatrix(ProjectionMatrix);
@@ -261,14 +261,15 @@ void createCubeScene() {
 	material->LoadMaterial("Assets/Models/untitled.mtl");
 	Texture* tex1 = new Texture();
 	tex1->LoadTexture("Assets/Textures/BarkBurned001_COL_1K.jpg");
-
+	//tex1->LoadTexture("Assets/Textures/barrel.png");
 	cube = main->createNode();
 	cube->material = material;
 	//cube->tex = tex1;
 	cube->setMesh(MeshManager::getInstance()->get("tree"));
-	cube->setMatrix(cube->GetModelMatrix());
+	cube->setMatrix(TRANSLATE(0,0.5,0)*cube->GetModelMatrix());
 	Texture* tex2 = new Texture();
 	tex2->LoadTexture("Assets/Textures/BarkBurned001_NRM_1K.jpg");
+	//tex2->LoadTexture("Assets/Textures/barrelNormal.png");
 	cube->tex = tex1;
 	cube->tex2 = tex2;
 	cube->setActive(true);
@@ -288,11 +289,11 @@ void createCubeScene() {
 	waterNode->setActive(false);
 	//cube->tex2 = dudv;
 
-	SceneNode* underWater = main->createNode();
-	underWater->setMesh(MeshManager::getInstance()->get("water"));
-	underWater->setMatrix(Matrix4::TRANSLATE(0, -5, 0) * Matrix4::SCALE(5, 1, 5) * underWater->GetModelMatrix());
-	underWater->setActive(true);
-	underWater->setShaderProgram(normal);
+	//SceneNode* underWater = main->createNode();
+	//underWater->setMesh(MeshManager::getInstance()->get("water"));
+	//underWater->setMatrix(Matrix4::TRANSLATE(0, -5, 0) * Matrix4::SCALE(5, 1, 5) * underWater->GetModelMatrix());
+	//underWater->setActive(true);
+	//underWater->setShaderProgram(normal);
 	//lightSphere = main->createNode();
 	//lightSphere->setMesh(MeshManager::getInstance()->get("sphere"));
 	//lightSphere->setMatrix(Matrix4::TRANSLATE(LightPosition.coordinates[0], LightPosition.coordinates[1], LightPosition.coordinates[2])*Matrix4::SCALE(0.2, 0.2, 0.2)*lightSphere->GetModelMatrix());
@@ -322,11 +323,11 @@ void ControlCamera() {
 	}
 	if (Keyboard::getInstance()->isKeyPressed('q')) {
 
-		SceneManager::getInstance()->get("main")->FreeCamera->MoveCamera(Direction::Up, deltaTime);
+		SceneManager::getInstance()->get("main")->FreeCamera->MoveCamera(Direction::Down, deltaTime);
 		//std::cout << SceneManager::getInstance()->get("main")->FreeCamera->GetCamera() << std::endl;
 	}
 	if (Keyboard::getInstance()->isKeyPressed('e')) {
-		SceneManager::getInstance()->get("main")->FreeCamera->MoveCamera(Direction::Down, deltaTime);
+		SceneManager::getInstance()->get("main")->FreeCamera->MoveCamera(Direction::Up, deltaTime);
 		//std::cout << SceneManager::getInstance()->get("main")->FreeCamera->GetCamera() << std::endl;
 	}
 	if (Keyboard::getInstance()->isKeyPressed('m')) {
@@ -442,6 +443,9 @@ void drawSceneWithReflections()
 
 	//render to screen
 	waterNode->setActive(true);
+	waterShader->Enable();
+	water->calculateMoveFactor(waterShader->getUniform("moveFactor"), deltaTime);
+	water->sendCameraPosition(waterShader->getUniform("cameraPosition"), SceneManager::getInstance()->get("main")->FreeCamera->position);
 	glDisable(GL_CLIP_DISTANCE0);
 	water->unbindCurrentFrameBuffer();
 	//waterShader->Enable();
@@ -468,7 +472,9 @@ void drawScene()
 
 void debugMode() {
 	updateMatrixes();
+	waterNode->setActive(false);
 	glViewport(0, 0, WinX*0.5, WinY*0.5);
+	cube->setShaderProgram(noTexDebugger);
 	SceneManager::getInstance()->get("main")->Draw(LightPosition);
 	glViewport(WinX*0.5, 0, WinX*0.5, WinY*0.5);
 	cube->setShaderProgram(normalDebugger);
@@ -501,6 +507,7 @@ void debugMode() {
 	glDisable(GL_MULTISAMPLE);
 	//glDisable(GL_POLYGON_SMOOTH);
 	glViewport(0, 0, WinX, WinY); //restore default
+	waterNode->setActive(true);
 }
 
 void display()
@@ -553,7 +560,8 @@ void reshape(int w, int h)
 	WinX = w;
 	WinY = h;
 	glViewport(0, 0, WinX, WinY);
-	ProjectionMatrix = Matrix4::ProjectionMatrix(PI/6, (float)WinX / (float)WinY, 1, 50);
+	//ProjectionMatrix = Matrix4::ProjectionMatrix(PI/2, (float)WinX / (float)WinY, 1, 300);
+	ProjectionMatrix = Matrix4::ProjectionMatrix(PI / 6, (float)WinX / (float)WinY, 1, 50);
 	SceneManager::getInstance()->get("main")->FreeCamera->setProjectionMatrix(ProjectionMatrix);
 	water->setDimensions(WinX , WinY);
 }

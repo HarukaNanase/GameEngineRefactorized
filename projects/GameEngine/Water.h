@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GL/glew.h>
-
+#include "Vector3.h"
 class Water {
 public:
 	int REFLECTION_WIDTH = 1280;
@@ -10,6 +10,8 @@ public:
 	int REFRACTION_WIDTH = 1280;
 	int REFRACTION_HEIGHT = 720;
 	
+	const float WATER_SPEED = 0.02f;
+	float moveFactor = 0.f;
 	
 	Water (int x, int y);
 	void bindReflectionBuffer();
@@ -18,6 +20,8 @@ public:
 	GLuint getReflectionTexture();
 	GLuint getRefractionTexture();
 	GLuint getRefractionDepthTexture();
+	void calculateMoveFactor(GLint uniform, const float deltaTime);
+	void sendCameraPosition(GLint uniform, const Vector3 pos);
 	~Water();
 
 	void setDimensions(int w, int h);
@@ -42,5 +46,6 @@ private:
 	GLuint createDepthTextureAttachment(const int width, const int height);
 	GLuint createDepthBufferAttachment(const int width, const int height);
 	void cleanUp();
+
 };
 

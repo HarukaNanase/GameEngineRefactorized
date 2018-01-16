@@ -30,7 +30,7 @@ void main(void){
 	//vec3 finalColor = mix(reflectColor, vec3(0, 0, 1), 0.2);
 	//vec3 finalColor = refractColor;
 	//vec3 finalColor = reflectColor;
-	finalColor = texture(tex, texCoordsReal).rgb;
+	//finalColor = texture(tex, texCoordsReal).rgb;
 	outColor = vec4(finalColor, 1.0);
 	//outColor = vec4(texture(tex, ReflectionTexCoords).rgb, 1.0);
 }
