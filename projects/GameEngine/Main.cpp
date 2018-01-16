@@ -244,15 +244,15 @@ void createMesh()
 void createCubeScene() {
 	SceneGraph* main = SceneManager::getInstance()->create("main");
 	SkyBox* box = new SkyBox({ 
-		"Assets/Textures/cubemap/lagoon_rt.tga",    //right
-		"Assets/Textures/cubemap/lagoon_lf.tga",     //left
-		"Assets/Textures/cubemap/lagoon_dn.tga",	//bottom
-		"Assets/Textures/cubemap/lagoon_up.tga",		//top
-		"Assets/Textures/cubemap/lagoon_bk.tga",		//back
-		"Assets/Textures/cubemap/lagoon_ft.tga"		//front
+		"Assets/Textures/cubemap/day_right.png",    //right
+		"Assets/Textures/cubemap/day_left.png",     //left
+		"Assets/Textures/cubemap/day_down.png",	//bottom
+		"Assets/Textures/cubemap/day_up.png",		//top
+		"Assets/Textures/cubemap/day_back.png",		//back
+		"Assets/Textures/cubemap/day_front.png"		//front
 	});
 	box->setSkyBoxShader(skyBoxShader);
-	//main->setSkyBox(box);
+	main->setSkyBox(box);
 
 	main->getRoot()->setShaderProgram(shader);
 	(&camera)->setProjectionMatrix(ProjectionMatrix);
@@ -333,9 +333,6 @@ void ControlCamera() {
 	if (Keyboard::getInstance()->isKeyPressed('m')) {
 	//	envoirnment->ChangeDirection(deltaTime* 360.0f, Vector4(0, 1, 0, 1));
 	}
-	if (Keyboard::getInstance()->isKeyPressed('n')) {
-	//	envoirnment->ChangeDirection(-deltaTime*360.0f, Vector4(0, 1, 0, 1));
-	}
 	if (Keyboard::getInstance()->isKeyPressed('k')) {
 
 		//tangram->ChangeDirection(deltaTime* 360.0f, Vector4(0, 1, 0, 1));
@@ -368,6 +365,14 @@ void ControlCamera() {
 	}
 	if (Keyboard::getInstance()->isKeyPressed('v')) {
 		LightPosition += Vector3(0, -1 * deltaTime, 0);
+		std::cout << "LightPosition: " << LightPosition << std::endl;
+	}
+	if (Keyboard::getInstance()->isKeyPressed('b')) {
+		LightPosition += Vector3(0, 0, -1 * deltaTime);
+		std::cout << "LightPosition: " << LightPosition << std::endl;
+	}
+	if (Keyboard::getInstance()->isKeyPressed('n')) {
+		LightPosition += Vector3(0, 0, 1 * deltaTime);
 		std::cout << "LightPosition: " << LightPosition << std::endl;
 	}
 	
@@ -409,6 +414,7 @@ void updateMatrixes() {
 	skyBoxShader->Enable();
 	glUniformMatrix4fv(skyBoxShader->getUniform("ViewMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetCamera().data);
 	glUniformMatrix4fv(skyBoxShader->getUniform("ProjectionMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetProjectionMatrix().data);
+	//glUniformMatrix4fv(skyBoxShader->getUniform("ProjectionMatrix"), 1, GL_FALSE, Matrix4::ProjectionMatrix(PI/2, (float)WinX/(float)WinY, 1, 50).data);
 	skyBoxShader->Disable();
 
 }
@@ -416,7 +422,6 @@ void updateMatrixes() {
 void drawSceneWithReflections()
 {
 	SceneGraph* sceneGraph = SceneManager::getInstance()->get("main");
-
 	glEnable(GL_CLIP_DISTANCE0);
 	waterNode->setActive(false);
 	water->bindReflectionBuffer();
@@ -561,7 +566,7 @@ void reshape(int w, int h)
 	WinY = h;
 	glViewport(0, 0, WinX, WinY);
 	//ProjectionMatrix = Matrix4::ProjectionMatrix(PI/2, (float)WinX / (float)WinY, 1, 300);
-	ProjectionMatrix = Matrix4::ProjectionMatrix(PI / 6, (float)WinX / (float)WinY, 1, 50);
+	ProjectionMatrix = Matrix4::ProjectionMatrix(PI / 4, (float)WinX / (float)WinY, 1, 50);
 	SceneManager::getInstance()->get("main")->FreeCamera->setProjectionMatrix(ProjectionMatrix);
 	water->setDimensions(WinX , WinY);
 }
