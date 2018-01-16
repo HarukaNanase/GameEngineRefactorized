@@ -47,7 +47,7 @@ void SceneGraph::Draw(Vector3 LightPosition)
 	if (this->root->shaderProgram->getUniform("LightPosition") != -1)
 		glUniform3fv(this->root->shaderProgram->getUniform("LightPosition"), 1, LightPosition.coordinates);
 
-	//	std::cout << this->root->shaderProgram->getUniform("LightPosition") << std::endl;
+	//std::cout << this->root->shaderProgram->getUniform("LightPosition") << std::endl;
 
 	this->root->Draw();
 	this->root->shaderProgram->Disable();

@@ -124,6 +124,7 @@ void Water::calculateMoveFactor(const GLint uniform, const float deltaTime) {
 
 void Water::sendCameraPosition(GLint uniform, const Vector3 pos) {
 	glUniform3fv(uniform, 1, pos.coordinates);
+
 }
 
 

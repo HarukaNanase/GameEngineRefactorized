@@ -30,7 +30,7 @@ Shader* skyBoxShader;
 #define SCALE(x,y,z) Matrix4::SCALE(x,y,z)
 #define TRANSLATE(x,y,z) Matrix4::TRANSLATE(x,y,z)
 //QuaternionCamera camera = QuaternionCamera(Vector3(0,0,-5));
-Matrix4 ProjectionMatrix = Matrix4::ProjectionMatrix(PI/6, 640.0f / 480.0f, 1, 50);
+Matrix4 ProjectionMatrix = Matrix4::ProjectionMatrix(PI/3, 640.0f / 480.0f, 1, 50);
 Camera camera = Camera(Vector3(0, 0, 5), Vector3(0, 0, 0));
 Mouse* mouse;
 Water* water;
@@ -45,7 +45,7 @@ bool msaa = false;
 SceneNode *first, *second, *third, *fourth, *fifth, *sixth, *seventh;
 SceneNode *tree;
 SceneNode * lightSphere;
-Vector3 LightPosition(0.f,0.f,5.0f);
+Vector3 LightPosition(-80,80,-80);
 
 /////////////////////////////////////////////////////////////////////// ERRORS
 
@@ -120,12 +120,15 @@ void createShaderProgram()
 	waterShader->BindAttribute(TEXCOORDS, "inTexCoord");
 	waterShader->BindAttribute(NORMALS, "inNormal");
 	waterShader->Link();
+	waterShader->AddUniform("LightPosition");
 	waterShader->Enable();
 	GLuint reflection = waterShader->getUniform("ReflectionTexture");
 	GLuint refraction = waterShader->getUniform("RefractionTexture");
 	glUniform1i(reflection, 0);
 	glUniform1i(refraction, 1);
+	
 	waterShader->Disable();
+	
 	normal = new Shader();
 	normal->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/cube_vs.glsl");
 	normal->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/cube_fs.glsl");
@@ -284,11 +287,12 @@ void createCubeScene() {
 	Texture* dudv = new Texture();
 	dudv->LoadTexture("Assets/Textures/waterDUDV.png");
 	waterNode->tex = dudv;
+	Texture* waterNormalMap = new Texture();
+	waterNormalMap->LoadTexture("Assets/Textures/waterNormalMap.png");
+	waterNode->tex2 = waterNormalMap;
 	waterNode->ChangeDirection(0, Vector4(1, 0, 0, 1));
-//	waterNode->setColor(Vec4(0.08, 0.05, 0.9, 1));
 	waterNode->setShaderProgram(waterShader);
 	waterNode->setActive(false);
-	//tree->tex2 = dudv;
 
 	Texture* landTexture = new Texture();
 	landTexture->LoadTexture("Assets/Textures/landscape.jpg");
@@ -456,9 +460,10 @@ void drawSceneWithReflections()
 	waterShader->Enable();
 	water->calculateMoveFactor(waterShader->getUniform("moveFactor"), deltaTime);
 	water->sendCameraPosition(waterShader->getUniform("cameraPosition"), SceneManager::getInstance()->get("main")->FreeCamera->position);
+	//glUniform3fv(waterShader->GetUniform("cona"), 1, SceneManager::getInstance()->get("main")->FreeCamera->position.coordinates);
 	glDisable(GL_CLIP_DISTANCE0);
 	water->unbindCurrentFrameBuffer();
-	//waterShader->Enable();
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, water->getReflectionTexture());
