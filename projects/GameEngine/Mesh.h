@@ -12,7 +12,7 @@
 #include "GL\glew.h"
 #include "GL\freeglut.h"
 #include "Shader.h"
-#include "Matrix4.h";
+#include "Matrix4.h"
 #include "QuaternionCamera.h"
 #include "Texture.h"
 #define VERTEX 0

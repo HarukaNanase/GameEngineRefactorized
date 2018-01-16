@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Tests">
-      <UniqueIdentifier>{e32cebab-6301-40f3-bcef-d668a0f65492}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Matrix2.h">
@@ -44,9 +41,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Matrix2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -70,18 +64,6 @@
     </ClCompile>
     <ClCompile Include="src\Vector4.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\QuaternionUnitTests.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\Vector2UnitTests.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\Vector3UnitTests.cpp">
-      <Filter>Tests</Filter>
-    </ClCompile>
-    <ClCompile Include="tests\MatrixUnitTests.cpp">
-      <Filter>Tests</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

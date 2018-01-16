@@ -56,10 +56,10 @@ void SceneGraph::Draw(Vector3 LightPosition)
 		//glDepthMask(GL_FALSE);
 		//glDisable(GL_DEPTH_TEST);
 		//glDisable(GL_CULL_FACE);
-		//std::cout << "Drawing skybox cube" << std::endl;
+		//std::cout << "Drawing skybox treeNode" << std::endl;
 		this->skybox->skyboxShader->Enable();
 		this->skybox->cube->Draw();
-		//glBindVertexArray(this->skybox->cube->VaoId);
+		//glBindVertexArray(this->skybox->treeNode->VaoId);
 		//glBindTexture(GL_TEXTURE_CUBE_MAP, this->skybox->skybox->textureId);
 		//glDrawArrays(GL_TRIANGLES, 0, 36);
 		//glEnable(GL_CULL_FACE);

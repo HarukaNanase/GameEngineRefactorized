@@ -43,7 +43,7 @@ bool Rewind = false;
 bool DEBUG = false;
 bool msaa = false;
 SceneNode *first, *second, *third, *fourth, *fifth, *sixth, *seventh;
-SceneNode *cube;
+SceneNode *treeNode;
 SceneNode * lightSphere;
 Vector3 LightPosition(0.f,0.f,5.0f);
 
@@ -126,7 +126,10 @@ void createShaderProgram()
 	glUniform1i(reflection, 0);
 	glUniform1i(refraction, 1);
 	waterShader->AddUniform("tex");
+	waterShader->AddUniform("moveFactor");
+	waterShader->AddUniform("cameraPosistion");
 	waterShader->Disable();
+	
 	normal = new Shader();
 	normal->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/cube_vs.glsl");
 	normal->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/cube_fs.glsl");
@@ -202,7 +205,7 @@ void createShaderProgram()
 //MOUSE AND KEYBOARD INPUTS
 void createSimpleMesh()
 {
-	MeshManager::getInstance()->create("Assets/Models/barrel2.obj", "cube");
+	MeshManager::getInstance()->create("Assets/Models/barrel2.obj", "treeNode");
 }
 
 void createSimpleScene()
@@ -225,12 +228,12 @@ void createSimpleScene()
 	tex2->LoadTexture("Assets/Textures/barrelNormal.png");
 	mat->LoadMaterial("Assets/Models/ground2.mtl");
 
-	cube = main->createNode();
-	cube->setMesh(MeshManager::getInstance()->get("cube"));
-	cube->setMatrix(Matrix4::SCALE(1.0, 1.0, 1.0) * cube->GetModelMatrix());
-	cube->material = mat;
-	cube->tex = tex1;
-	//cube->tex2 = tex2;
+	treeNode = main->createNode();
+	treeNode->setMesh(MeshManager::getInstance()->get("treeNode"));
+	treeNode->setMatrix(Matrix4::SCALE(1.0, 1.0, 1.0) * treeNode->GetModelMatrix());
+	treeNode->material = mat;
+	treeNode->tex = tex1;
+	//treeNode->tex2 = tex2;
 }
 
 void createMesh()
@@ -262,16 +265,16 @@ void createCubeScene() {
 	Texture* tex1 = new Texture();
 	tex1->LoadTexture("Assets/Textures/BarkBurned001_COL_1K.jpg");
 
-	cube = main->createNode();
-	cube->material = material;
-	//cube->tex = tex1;
-	cube->setMesh(MeshManager::getInstance()->get("tree"));
-	cube->setMatrix(cube->GetModelMatrix());
+	treeNode = main->createNode();
+	treeNode->material = material;
+	//treeNode->tex = tex1;
+	treeNode->setMesh(MeshManager::getInstance()->get("tree"));
+	treeNode->setMatrix(Matrix4::TRANSLATE(0, 0.55, 0) * treeNode->GetModelMatrix());
 	Texture* tex2 = new Texture();
 	tex2->LoadTexture("Assets/Textures/BarkBurned001_NRM_1K.jpg");
-	cube->tex = tex1;
-	cube->tex2 = tex2;
-	cube->setActive(true);
+	treeNode->tex = tex1;
+	treeNode->tex2 = tex2;
+	treeNode->setActive(true);
 	//SceneNode* jinx = main->createNode();
 	//jinx->tex = tex1;
 	//jinx->setMesh(MeshManager::getInstance()->get("sphere"));
@@ -286,7 +289,7 @@ void createCubeScene() {
 //	waterNode->setColor(Vec4(0.08, 0.05, 0.9, 1));
 	waterNode->setShaderProgram(waterShader);
 	waterNode->setActive(false);
-	//cube->tex2 = dudv;
+	//treeNode->tex2 = dudv;
 
 	SceneNode* underWater = main->createNode();
 	underWater->setMesh(MeshManager::getInstance()->get("water"));
@@ -338,20 +341,20 @@ void ControlCamera() {
 	if (Keyboard::getInstance()->isKeyPressed('k')) {
 
 		//tangram->ChangeDirection(deltaTime* 360.0f, Vector4(0, 1, 0, 1));
-		cube->setMatrix(TRANSLATE(0, -1 * deltaTime, 0) * cube->GetModelMatrix());
+		treeNode->setMatrix(TRANSLATE(0, -1 * deltaTime, 0) * treeNode->GetModelMatrix());
 	}
 	if (Keyboard::getInstance()->isKeyPressed('j')) {
-		cube->setMatrix(TRANSLATE(-1 * deltaTime, 0, 0) * cube->GetModelMatrix());
+		treeNode->setMatrix(TRANSLATE(-1 * deltaTime, 0, 0) * treeNode->GetModelMatrix());
 	}
 	if (Keyboard::getInstance()->isKeyPressed('i')) {
 
-		cube->setMatrix(TRANSLATE(0, 1 * deltaTime, 0)*cube->GetModelMatrix());
+		treeNode->setMatrix(TRANSLATE(0, 1 * deltaTime, 0)*treeNode->GetModelMatrix());
 	}
 	if (Keyboard::getInstance()->isKeyPressed('u')) {
-		cube->setMatrix(TRANSLATE(1 * deltaTime, 0, 0) * cube->GetModelMatrix());
+		treeNode->setMatrix(TRANSLATE(1 * deltaTime, 0, 0) * treeNode->GetModelMatrix());
 	}
 	if (Keyboard::getInstance()->isKeyPressed('l')) {
-		cube->ChangeDirection(deltaTime*360.0f, Vector4(0, 1, 0, 1));
+		treeNode->ChangeDirection(deltaTime*360.0f, Vector4(0, 1, 0, 1));
 	}
 	if (Keyboard::getInstance()->isKeyPressed('z')) {
 		LightPosition += Vector3(-1*deltaTime, 0, 0);
@@ -442,9 +445,11 @@ void drawSceneWithReflections()
 
 	//render to screen
 	waterNode->setActive(true);
+	waterShader->Enable();
+	water->calculateMoveFactor(waterShader->getUniform("moveFactor"), deltaTime);
+	water->sendCameraPosition(waterShader->getUniform("cameraPosition"), SceneManager::getInstance()->get("main")->FreeCamera->position);
 	glDisable(GL_CLIP_DISTANCE0);
 	water->unbindCurrentFrameBuffer();
-	//waterShader->Enable();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, water->getReflectionTexture());
@@ -471,10 +476,10 @@ void debugMode() {
 	glViewport(0, 0, WinX*0.5, WinY*0.5);
 	SceneManager::getInstance()->get("main")->Draw(LightPosition);
 	glViewport(WinX*0.5, 0, WinX*0.5, WinY*0.5);
-	cube->setShaderProgram(normalDebugger);
+	treeNode->setShaderProgram(normalDebugger);
 	SceneManager::getInstance()->get("main")->Draw(LightPosition);
 	//drawSceneWithReflections();
-	cube->setShaderProgram(shader);
+	treeNode->setShaderProgram(shader);
 	//left top
 	glViewport(0, WinY*0.5, WinX*0.5, WinY*0.5);
 	
@@ -483,14 +488,14 @@ void debugMode() {
 	glEnable(GL_LINE_SMOOTH);
 	//glHint(GL_LINE_SMOOTH, GL_NICEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//cube->setShaderProgram(noTexDebugger);
+	//treeNode->setShaderProgram(noTexDebugger);
 	SceneManager::getInstance()->get("main")->Draw(LightPosition);
 	//drawSceneWithoutReflections();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_LINE_SMOOTH);
 	//glDisable(GL_BLEND);
 
-	//cube->setShaderProgram(shader);
+	//treeNode->setShaderProgram(shader);
 	//wireframe mode
 	//right top
 	glViewport(WinX*0.5, WinY*0.5, WinX*0.5, WinY*0.5);

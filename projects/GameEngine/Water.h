@@ -1,6 +1,8 @@
 #pragma once
 
 #include <GL/glew.h>
+#include "Shader.h"
+#include "Vector3.h"
 
 class Water {
 public:
@@ -9,8 +11,10 @@ public:
 
 	int REFRACTION_WIDTH = 1280;
 	int REFRACTION_HEIGHT = 720;
-	
-	
+	const float WATER_SPEED = 0.02f;
+	float moveFactor = 0.f;
+
+
 	Water (int x, int y);
 	void bindReflectionBuffer();
 	void bindRefractionBuffer();
@@ -19,7 +23,8 @@ public:
 	GLuint getRefractionTexture();
 	GLuint getRefractionDepthTexture();
 	~Water();
-
+	void calculateMoveFactor(GLint uniform, const float deltaTime);
+	void sendCameraPosition(GLint uniform, const Vector3 pos);
 	void setDimensions(int w, int h);
 private:
 	int Width;
@@ -41,6 +46,7 @@ private:
 	GLuint createTextureAttachment(int width, int height);
 	GLuint createDepthTextureAttachment(const int width, const int height);
 	GLuint createDepthBufferAttachment(const int width, const int height);
+
 	void cleanUp();
 };
 

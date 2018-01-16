@@ -46,7 +46,7 @@ void Camera::MoveCamera(Direction dir, float velocity)
 		break;
 	case Left:
 		this->position -= this->right * velocity;
-		std::cout << this->position << std::endl;
+		//std::cout << this->position << std::endl;
 		break;
 	case Forward:
 		this->position += this->front * velocity;
