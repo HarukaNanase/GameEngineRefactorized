@@ -12,8 +12,7 @@ uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform	mat4 ProjectionMatrix;
 uniform vec3 cameraPosition;
-uniform vec3 LightPosition = vec3(15, 15, 15);
-
+uniform vec3 LightPosition;
 const float tiling = 6.0;
 
 void main(void) {

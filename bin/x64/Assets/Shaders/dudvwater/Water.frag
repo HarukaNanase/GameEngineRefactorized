@@ -23,6 +23,11 @@ vec2 clipSpaceToTexCoords(vec4 c){
 	return (c.xy / c.w) / 2.0 + 0.5;
 }
 
+float LightAttenuation(float a,float b, float distance){
+	return 1/(1 + a*distance + (b*distance*distance));
+}
+
+
 void main(void){
 	
 	vec2 texCoordsReal = clipSpaceToTexCoords(clipSpace);
@@ -54,8 +59,9 @@ void main(void){
 
 	vec3 reflectedLight = reflect(normalize(fromLightVector), normal);
 	float specular = max(dot(reflectedLight, view) , 0);
+	float att = LightAttenuation(0.02, 0.0, length(fromLightVector));
 	specular = pow(specular, shineDamper);
-	vec3 specularHighlights = lightColor * specular * reflectiveness;
+	vec3 specularHighlights = lightColor * specular * reflectiveness * att;
 	
 	outColor = mix(reflectColor, refractColor, frenelFactor);
 	outColor = mix(outColor, vec4(0, 0.3, 0.5, 1.0), 0.4) + vec4(specularHighlights, 0); 

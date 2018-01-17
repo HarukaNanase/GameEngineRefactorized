@@ -73,7 +73,7 @@ void Camera::LookAt(float MouseX, float MouseY) {
 
 	this->currentUp = rod2 * rod1 * this->currentUp;
 	//this->currentUp.coordinates[0] = 0;
-	
+	//this->right.coordinates[1] = 0;
 	this->right = Vector3::crossProduct(this->front, this->currentUp).normalize();
 	this->front = this->front.normalize();
 	this->currentUp = this->currentUp.normalize();

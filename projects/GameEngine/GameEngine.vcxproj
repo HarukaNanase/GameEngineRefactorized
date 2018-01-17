@@ -137,6 +137,8 @@
     <ClInclude Include="Managers\include\IManager.h" />
     <ClInclude Include="Managers\include\MeshManager.h" />
     <ClInclude Include="Managers\include\SceneManager.h" />
+    <ClInclude Include="Managers\include\ShaderManager.h" />
+    <ClInclude Include="Managers\include\TextureManager.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Scene\include\SceneGraph.h" />
@@ -162,6 +164,8 @@
     <ClCompile Include="Managers\src\AnimationManager.cpp" />
     <ClCompile Include="Managers\src\MeshManager.cpp" />
     <ClCompile Include="Managers\src\SceneManager.cpp" />
+    <ClCompile Include="Managers\src\ShaderManager.cpp" />
+    <ClCompile Include="Managers\src\TextureManager.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Scene\src\SceneGraph.cpp" />

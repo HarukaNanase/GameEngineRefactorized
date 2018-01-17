@@ -5,6 +5,8 @@
 #include "SceneGraph.h"
 #include "MeshManager.h"
 #include "SceneManager.h"
+#include "TextureManager.h"
+#include "ShaderManager.h"
 #include "AnimationManager.h"
 #include "Animation.h"
 #include "Keyboard.h"
@@ -45,6 +47,12 @@ bool msaa = false;
 SceneNode *first, *second, *third, *fourth, *fifth, *sixth, *seventh;
 SceneNode *tree;
 SceneNode * lightSphere;
+SceneNode* rockGroup;
+SceneNode* rock1;
+SceneNode* rock2;
+SceneNode* rock3;
+SceneNode* rock4;
+SceneNode* rock5;
 Vector3 LightPosition(-80,80,-80);
 
 /////////////////////////////////////////////////////////////////////// ERRORS
@@ -87,40 +95,48 @@ void checkOpenGLError(std::string error)
 
 void createShaderProgram()
 {
-	shader = new Shader();
-	shader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/NormalMapping/normal_vert_refact.glsl");
-	shader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/NormalMapping/normal_frag_refact.glsl");
+	//shader = new Shader();
+	
+	//shader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/NormalMapping/normal_vert_refact.glsl");
+	//shader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/NormalMapping/normal_frag_refact.glsl");
+	shader = ShaderManager::getInstance()->create("shader",
+		"Assets/Shaders/NormalMapping/normal_vert_refact.glsl",
+		"Assets/Shaders/NormalMapping/normal_frag_refact.glsl");
+	
 	//shader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_vert.glsl");
 	//shader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_frag.glsl");
-	shader->Prepare();
-	shader->Attach(GL_VERTEX_SHADER);
-	shader->Attach(GL_FRAGMENT_SHADER);
-	shader->BindAttribute(VERTICES, "inPosition");
-	shader->BindAttribute(TEXCOORDS, "inTexCoord");
-	shader->BindAttribute(NORMALS, "inNormal");
-	shader->BindAttribute(TANGENTS, "inTangent");
-	shader->BindAttribute(BITANGENTS, "inBiTangent");
-	shader->Link();
-	shader->AddUniform("ModelMatrix");
-	shader->AddUniform("ViewMatrix");
-	shader->AddUniform("ProjectionMatrix");
-	shader->AddUniform("LightPosition");
-	shader->AddUniform("NormalMatrix");
-	shader->AddUniform("tex");
-	shader->AddUniform("normalMap");
-	shader->AddUniform("material");
+	//shader->Prepare();
+	//shader->Attach(GL_VERTEX_SHADER);
+	//shader->Attach(GL_FRAGMENT_SHADER);
+	//shader->BindAttribute(VERTICES, "inPosition");
+	//shader->BindAttribute(TEXCOORDS, "inTexCoord");
+	//shader->BindAttribute(NORMALS, "inNormal");
+	//shader->BindAttribute(TANGENTS, "inTangent");
+	//shader->BindAttribute(BITANGENTS, "inBiTangent");
+	//shader->Link();
+	//shader->AddUniform("ModelMatrix");
+	//shader->AddUniform("ViewMatrix");
+	//shader->AddUniform("ProjectionMatrix");
+	//shader->AddUniform("LightPosition");
+	//shader->AddUniform("NormalMatrix");
+	//shader->AddUniform("tex");
+	//shader->AddUniform("normalMap");
+	//shader->AddUniform("material");
 
-	waterShader = new Shader();
-	waterShader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/dudvwater/Water.vert");
-	waterShader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/dudvwater/Water.frag");
-	waterShader->Prepare();
-	waterShader->Attach(GL_VERTEX_SHADER);
-	waterShader->Attach(GL_FRAGMENT_SHADER);
-	waterShader->BindAttribute(VERTICES, "inPosition");
-	waterShader->BindAttribute(TEXCOORDS, "inTexCoord");
-	waterShader->BindAttribute(NORMALS, "inNormal");
-	waterShader->Link();
-	waterShader->AddUniform("LightPosition");
+	//waterShader = new Shader();
+	//waterShader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/dudvwater/Water.vert");
+	//waterShader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/dudvwater/Water.frag");
+	//waterShader->Prepare();
+	//waterShader->Attach(GL_VERTEX_SHADER);
+	//waterShader->Attach(GL_FRAGMENT_SHADER);
+	//waterShader->BindAttribute(VERTICES, "inPosition");
+	//waterShader->BindAttribute(TEXCOORDS, "inTexCoord");
+	//waterShader->BindAttribute(NORMALS, "inNormal");
+	//waterShader->Link();
+	//waterShader->AddUniform("LightPosition");
+	waterShader = ShaderManager::getInstance()->create("water",
+		"Assets/Shaders/dudvwater/Water.vert",
+		"Assets/Shaders/dudvwater/Water.frag");
 	waterShader->Enable();
 	GLuint reflection = waterShader->getUniform("ReflectionTexture");
 	GLuint refraction = waterShader->getUniform("RefractionTexture");
@@ -129,122 +145,117 @@ void createShaderProgram()
 	
 	waterShader->Disable();
 	
-	normal = new Shader();
-	normal->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/cube_vs.glsl");
-	normal->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/cube_fs.glsl");
-	normal->Prepare();
-	normal->Attach(GL_VERTEX_SHADER);
-	normal->Attach(GL_FRAGMENT_SHADER);
-	normal->BindAttribute(VERTICES, "inPosition");
-	normal->BindAttribute(TEXCOORDS, "inTexCoord");
-	normal->BindAttribute(NORMALS, "inNormal");
-	normal->Link();
-	normal->AddUniform("ModelMatrix");
-	normal->AddUniform("ViewMatrix");
-	normal->AddUniform("ProjectionMatrix");
+	normal = ShaderManager::getInstance()->create("normal",
+		"Assets/Shaders/cube_vs.glsl",
+		"Assets/Shaders/cube_fs.glsl");
+	//normal = new Shader();
+	//normal->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/cube_vs.glsl");
+	//normal->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/cube_fs.glsl");
+	//normal->Prepare();
+	//normal->Attach(GL_VERTEX_SHADER);
+	//normal->Attach(GL_FRAGMENT_SHADER);
+	//normal->BindAttribute(VERTICES, "inPosition");
+	//normal->BindAttribute(TEXCOORDS, "inTexCoord");
+	//normal->BindAttribute(NORMALS, "inNormal");
+	//normal->Link();
+	//normal->AddUniform("ModelMatrix");
+	//normal->AddUniform("ViewMatrix");
+	//normal->AddUniform("ProjectionMatrix");
 
-	normalDebugger = new Shader();
-	normalDebugger->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/NormalMapping/normal_vert_refact.glsl");
-	normalDebugger->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/NormalMapping/normal_frag_refact_debug.glsl");
+	//normalDebugger = new Shader();
+	normalDebugger = ShaderManager::getInstance()->create("normalDebugger",
+		"Assets/Shaders/NormalMapping/normal_vert_refact.glsl",
+		"Assets/Shaders/NormalMapping/normal_frag_refact_debug.glsl");
+	//normalDebugger->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/NormalMapping/normal_vert_refact.glsl");
+	//normalDebugger->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/NormalMapping/normal_frag_refact_debug.glsl");
 	//normalDebugger->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_vert.glsl");
 	//normalDebugger->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_frag.glsl");
-	normalDebugger->Prepare();
-	normalDebugger->Attach(GL_VERTEX_SHADER);
-	normalDebugger->Attach(GL_FRAGMENT_SHADER);
-	normalDebugger->BindAttribute(VERTICES, "inPosition");
-	normalDebugger->BindAttribute(TEXCOORDS, "inTexCoord");
-	normalDebugger->BindAttribute(NORMALS, "inNormal");
-	normalDebugger->BindAttribute(TANGENTS, "inTangent");
-	normalDebugger->BindAttribute(BITANGENTS, "inBiTangent");
-	normalDebugger->Link();
-	normalDebugger->AddUniform("ModelMatrix");
-	normalDebugger->AddUniform("ViewMatrix");
-	normalDebugger->AddUniform("ProjectionMatrix");
-	normalDebugger->AddUniform("LightPosition");
-	normalDebugger->AddUniform("NormalMatrix");
-	normalDebugger->AddUniform("tex");
-	normalDebugger->AddUniform("normalMap");
-	normalDebugger->AddUniform("material");
+	//normalDebugger->Prepare();
+	//normalDebugger->Attach(GL_VERTEX_SHADER);
+	//normalDebugger->Attach(GL_FRAGMENT_SHADER);
+	//normalDebugger->BindAttribute(VERTICES, "inPosition");
+	//normalDebugger->BindAttribute(TEXCOORDS, "inTexCoord");
+	//normalDebugger->BindAttribute(NORMALS, "inNormal");
+	//normalDebugger->BindAttribute(TANGENTS, "inTangent");
+	//normalDebugger->BindAttribute(BITANGENTS, "inBiTangent");
+	//normalDebugger->Link();
+	//normalDebugger->AddUniform("ModelMatrix");
+	//normalDebugger->AddUniform("ViewMatrix");
+	//normalDebugger->AddUniform("ProjectionMatrix");
+	//normalDebugger->AddUniform("LightPosition");
+	//normalDebugger->AddUniform("NormalMatrix");
+	//normalDebugger->AddUniform("tex");
+	//normalDebugger->AddUniform("normalMap");
+	//normalDebugger->AddUniform("material");
 
-	noTexDebugger = new Shader();
-	noTexDebugger->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/NormalMapping/normal_vert_refact.glsl");
-	noTexDebugger->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/NormalMapping/normal_frag_refact_debug_notex.glsl");
+	//noTexDebugger = new Shader();
+	noTexDebugger = ShaderManager::getInstance()->create("noTexDebugger",
+		"Assets/Shaders/NormalMapping/normal_vert_refact.glsl",
+		"Assets/Shaders/NormalMapping/normal_frag_refact_debug_notex.glsl");
+	//noTexDebugger->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/NormalMapping/normal_vert_refact.glsl");
+	//noTexDebugger->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/NormalMapping/normal_frag_refact_debug_notex.glsl");
 	//shader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_vert.glsl");
 	//shader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/BlinnPhong/blinn_phong_frag.glsl");
-	noTexDebugger->Prepare();
-	noTexDebugger->Attach(GL_VERTEX_SHADER);
-	noTexDebugger->Attach(GL_FRAGMENT_SHADER);
-	noTexDebugger->BindAttribute(VERTICES, "inPosition");
-	noTexDebugger->BindAttribute(TEXCOORDS, "inTexCoord");
-	noTexDebugger->BindAttribute(NORMALS, "inNormal");
-	noTexDebugger->BindAttribute(TANGENTS, "inTangent");
-	noTexDebugger->BindAttribute(BITANGENTS, "inBiTangent");
-	noTexDebugger->Link();
-	noTexDebugger->AddUniform("ModelMatrix");
-	noTexDebugger->AddUniform("ViewMatrix");
-	noTexDebugger->AddUniform("ProjectionMatrix");
-	noTexDebugger->AddUniform("LightPosition");
-	noTexDebugger->AddUniform("NormalMatrix");
-	noTexDebugger->AddUniform("tex");
-	noTexDebugger->AddUniform("normalMap");
-	noTexDebugger->AddUniform("material");
+	//noTexDebugger->Prepare();
+	//noTexDebugger->Attach(GL_VERTEX_SHADER);
+	//noTexDebugger->Attach(GL_FRAGMENT_SHADER);
+	//noTexDebugger->BindAttribute(VERTICES, "inPosition");
+	//noTexDebugger->BindAttribute(TEXCOORDS, "inTexCoord");
+	//noTexDebugger->BindAttribute(NORMALS, "inNormal");
+	//noTexDebugger->BindAttribute(TANGENTS, "inTangent");
+	//noTexDebugger->BindAttribute(BITANGENTS, "inBiTangent");
+	//noTexDebugger->Link();
+	//noTexDebugger->AddUniform("ModelMatrix");
+	//noTexDebugger->AddUniform("ViewMatrix");
+	//noTexDebugger->AddUniform("ProjectionMatrix");
+	//noTexDebugger->AddUniform("LightPosition");
+	//noTexDebugger->AddUniform("NormalMatrix");
+	//noTexDebugger->AddUniform("tex");
+	//noTexDebugger->AddUniform("normalMap");
+	//noTexDebugger->AddUniform("material");
 
-	skyBoxShader = new Shader();
-	skyBoxShader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/skybox/skybox_vert.glsl");
-	skyBoxShader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/skybox/skybox_frag.glsl");
-	skyBoxShader->Prepare();
-	skyBoxShader->Attach(GL_VERTEX_SHADER);
-	skyBoxShader->Attach(GL_FRAGMENT_SHADER);
-	skyBoxShader->BindAttribute(VERTICES, "inPosition");
-	skyBoxShader->Link();
-	skyBoxShader->AddUniform("ViewMatrix");
-	skyBoxShader->AddUniform("ProjectionMatrix");
-	skyBoxShader->AddUniform("skybox");
+	//skyBoxShader = new Shader();
+	//skyBoxShader->LoadShader(GL_VERTEX_SHADER, "Assets/Shaders/skybox/skybox_vert.glsl");
+	//skyBoxShader->LoadShader(GL_FRAGMENT_SHADER, "Assets/Shaders/skybox/skybox_frag.glsl");
+	//skyBoxShader->Prepare();
+	//skyBoxShader->Attach(GL_VERTEX_SHADER);
+	//skyBoxShader->Attach(GL_FRAGMENT_SHADER);
+	//skyBoxShader->BindAttribute(VERTICES, "inPosition");
+	//skyBoxShader->Link();
+	//skyBoxShader->AddUniform("ViewMatrix");
+	//skyBoxShader->AddUniform("ProjectionMatrix");
+	//skyBoxShader->AddUniform("skybox");
+
+	skyBoxShader = ShaderManager::getInstance()->create("skyboxshader",
+		"Assets/Shaders/skybox/skybox_vert.glsl",
+		"Assets/Shaders/skybox/skybox_frag.glsl");
 }
 //MOUSE AND KEYBOARD INPUTS
-void createSimpleMesh()
-{
-	MeshManager::getInstance()->create("Assets/Models/barrel2.obj", "tree");
-}
-
-void createSimpleScene()
-{
-	SceneGraph* main = SceneManager::getInstance()->create("main");
-	SkyBox* box = new SkyBox({"right.tga","left.tga","up.tga","down.tga",
-		"back.tga","front.tga"});
-	box->setSkyBoxShader(skyBoxShader);
-	main->setSkyBox(box);
-
-	main->getRoot()->setShaderProgram(shader);
-	camera.setProjectionMatrix(ProjectionMatrix);
-	main->FreeCamera = &camera;
-	Texture* tex1 = new Texture();
-	//tex1->LoadTexture("Assets/Textures/brickwall.jpg");
-	tex1->LoadTexture("Assets/Textures/barrel.png");
-	Material* mat = new Material();
-	Texture* tex2 = new Texture();
-	//tex2->LoadTexture("Assets/Textures/normal_mapping_normal_map.png");
-	tex2->LoadTexture("Assets/Textures/barrelNormal.png");
-	mat->LoadMaterial("Assets/Models/ground2.mtl");
-
-	tree = main->createNode();
-	tree->setMesh(MeshManager::getInstance()->get("tree"));
-	tree->setMatrix(Matrix4::SCALE(1.0, 1.0, 1.0) * tree->GetModelMatrix());
-	tree->material = mat;
-	tree->tex = tex1;
-	//tree->tex2 = tex2;
-}
 
 void createMesh()
 {
-	//MeshManager::getInstance()->create("Assets/Models/kled.obj", "sphere");
 	MeshManager::getInstance()->create("Assets/Models/treeuv.obj", "tree");
-//	MeshManager::getInstance()->create("Assets/Models/jinx.obj", "jinx");
 	MeshManager::getInstance()->create("Assets/Models/waterPlane.obj", "water");
 	MeshManager::getInstance()->create("Assets/Models/barrel.obj", "barrel");
 	MeshManager::getInstance()->create("Assets/Models/landscape.obj", "landscape");
-	
+	MeshManager::getInstance()->create("Assets/Models/rock1.obj", "rock1");
+	MeshManager::getInstance()->create("Assets/Models/rock2.obj", "rock2");
+	MeshManager::getInstance()->create("Assets/Models/rock3.obj", "rock3");
+	MeshManager::getInstance()->create("Assets/Models/rock4.obj", "rock4");
+	MeshManager::getInstance()->create("Assets/Models/rock5.obj", "rock5");
+
 }
+
+void createTextures() {
+	TextureManager::getInstance()->create("Assets/Textures/BarkBurned001_COL_1K.jpg", "treediffuse");
+	TextureManager::getInstance()->create("Assets/Textures/BarkBurned001_NRM_1K.jpg", "treenormal");
+	TextureManager::getInstance()->create("Assets/Textures/waterDUDV.png", "waterdudv");
+	TextureManager::getInstance()->create("Assets/Textures/waterNormalMap.png", "waternormal");
+	TextureManager::getInstance()->create("Assets/Textures/landscape.jpg", "landscapetex");
+	TextureManager::getInstance()->create("Assets/Textures/rocks_01_dif.tga", "rockdiffuse");
+	TextureManager::getInstance()->create("Assets/Textures/rocks_01_nm.tga", "rocknormal");
+}
+
 void createCubeScene() {
 	SceneGraph* main = SceneManager::getInstance()->create("main");
 	SkyBox* box = new SkyBox({ 
@@ -263,50 +274,73 @@ void createCubeScene() {
 	main->FreeCamera = &camera;
 	Material* material = new Material();
 	material->LoadMaterial("Assets/Models/untitled.mtl");
-	Texture* tex1 = new Texture();
-	tex1->LoadTexture("Assets/Textures/BarkBurned001_COL_1K.jpg");
-	//tex1->LoadTexture("Assets/Textures/barrel.png");
 	tree = main->createNode();
 	tree->material = material;
-	//tree->tex = tex1;
+
 	tree->setMesh(MeshManager::getInstance()->get("tree"));
 	tree->setMatrix(TRANSLATE(0,0.5,0)*tree->GetModelMatrix());
-	Texture* tex2 = new Texture();
-	tex2->LoadTexture("Assets/Textures/BarkBurned001_NRM_1K.jpg");
-	//tex2->LoadTexture("Assets/Textures/barrelNormal.png");
-	tree->tex = tex1;
-	tree->tex2 = tex2;
+	tree->addTexture("tex", TextureManager::getInstance()->get("treediffuse"));
+	tree->addTexture("normalMap", TextureManager::getInstance()->get("treenormal"));
+
 	tree->setActive(true);
-	//SceneNode* jinx = main->createNode();
-	//jinx->tex = tex1;
-	//jinx->setMesh(MeshManager::getInstance()->get("sphere"));
-	//jinx->setMatrix(Matrix4::TRANSLATE(0, 0, 0)*Matrix4::SCALE(0.005, 0.005, 0.005) * jinx->GetModelMatrix());
 	waterNode = main->createNode();
 	waterNode->setMesh(MeshManager::getInstance()->get("water"));
 	waterNode->setMatrix(Matrix4::TRANSLATE(0, 0, 0) * Matrix4::SCALE(15, 1, 15) * waterNode->GetModelMatrix());
-	Texture* dudv = new Texture();
-	dudv->LoadTexture("Assets/Textures/waterDUDV.png");
-	waterNode->tex = dudv;
-	Texture* waterNormalMap = new Texture();
-	waterNormalMap->LoadTexture("Assets/Textures/waterNormalMap.png");
-	waterNode->tex2 = waterNormalMap;
+	waterNode->addTexture("tex", TextureManager::getInstance()->get("waterdudv"));
+	waterNode->addTexture("normalMap", TextureManager::getInstance()->get("waternormal"));
+
+
 	waterNode->ChangeDirection(0, Vector4(1, 0, 0, 1));
 	waterNode->setShaderProgram(waterShader);
 	waterNode->setActive(false);
-
-	Texture* landTexture = new Texture();
-	landTexture->LoadTexture("Assets/Textures/landscape.jpg");
 	SceneNode* underWater = main->createNode();
 	underWater->setMesh(MeshManager::getInstance()->get("landscape"));
 	underWater->setMatrix(Matrix4::TRANSLATE(0, 0, 0) * Matrix4::SCALE(0.025, 0.025, 0.025) * underWater->GetModelMatrix());
 	underWater->setActive(true);
-	//underWater->setShaderProgram(normal);
-	underWater->tex = landTexture;
-	
+	underWater->addTexture("tex", TextureManager::getInstance()->get("landscapetex"));
 	lightSphere = main->createNode();
 	lightSphere->setMesh(MeshManager::getInstance()->get("sphere"));
 	lightSphere->setMatrix(Matrix4::TRANSLATE(LightPosition.coordinates[0], LightPosition.coordinates[1], LightPosition.coordinates[2])*Matrix4::SCALE(0.2, 0.2, 0.2)*lightSphere->GetModelMatrix());
 
+	rock1 = main->createNode();
+	rock1->setShaderProgram(shader);
+	rock1->setMesh(MeshManager::getInstance()->get("rock1"));
+	rock1->addTexture("tex", TextureManager::getInstance()->get("rockdiffuse"));
+	rock1->addTexture("normalMap", TextureManager::getInstance()->get("rocknormal"));
+	rock1->setActive(true);
+	rock1->setMatrix(TRANSLATE(1, 0, 0) * rock1->GetModelMatrix());
+
+	rock2 = main->createNode();
+	rock2->setShaderProgram(shader);
+	rock2->setMesh(MeshManager::getInstance()->get("rock2"));
+	rock2->addTexture("tex", TextureManager::getInstance()->get("rockdiffuse"));
+	rock2->addTexture("normalMap", TextureManager::getInstance()->get("rocknormal"));
+	rock2->setActive(true);
+	rock2->setMatrix(TRANSLATE(1, 0, -1) * rock2->GetModelMatrix());
+
+	rock3 = main->createNode();
+	rock3->setShaderProgram(shader);
+	rock3->setMesh(MeshManager::getInstance()->get("rock3"));
+	rock3->addTexture("tex", TextureManager::getInstance()->get("rockdiffuse"));
+	rock3->addTexture("normalMap", TextureManager::getInstance()->get("rocknormal"));
+	rock3->setActive(true);
+	rock3->setMatrix(TRANSLATE(-1, 0, -1) * rock3->GetModelMatrix());
+	
+	rock4 = main->createNode();
+	rock4->setShaderProgram(shader);
+	rock4->setMesh(MeshManager::getInstance()->get("rock4"));
+	rock4->addTexture("tex", TextureManager::getInstance()->get("rockdiffuse"));
+	rock4->addTexture("normalMap", TextureManager::getInstance()->get("rocknormal"));
+	rock4->setActive(true);
+	rock4->setMatrix(TRANSLATE(0, 0, -1) * rock4->GetModelMatrix());
+
+	rock5 = main->createNode();
+	rock5->setShaderProgram(shader);
+	rock5->setMesh(MeshManager::getInstance()->get("rock5"));
+	rock5->addTexture("tex", TextureManager::getInstance()->get("rockdiffuse"));
+	rock5->addTexture("normalMap", TextureManager::getInstance()->get("rocknormal"));
+	rock5->setActive(true);
+	rock5->setMatrix(TRANSLATE(-1, 0, 0) * rock5->GetModelMatrix());
 }
 
 void ControlCamera() {
@@ -384,6 +418,9 @@ void ControlCamera() {
 		LightPosition += Vector3(0, 0, 1 * deltaTime);
 		std::cout << "LightPosition: " << LightPosition << std::endl;
 	}
+	if (Keyboard::getInstance()->isKeyPressed('i')) {
+		tree->setMatrix(TRANSLATE(0, 1 * deltaTime, 0)*tree->GetModelMatrix());
+	}
 	
 }
 
@@ -398,13 +435,38 @@ void cleanup()
 	MeshManager::freeInstance();
 	SceneManager::freeInstance();
 	AnimationManager::freeInstance();
+	TextureManager::freeInstance();
+	ShaderManager::freeInstance();
 }
 
 
 void updateMatrixes() {
+
+	auto shadersMap = ShaderManager::getInstance()->getShaders();
+	if (shadersMap.size() > 0) {
+		for (auto lt = shadersMap.begin(); lt != shadersMap.end(); ++lt) {
+			lt->second->Enable();
+			if (lt->second->getUniform("ViewMatrix") != -1)
+				glUniformMatrix4fv(lt->second->getUniform("ViewMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetCamera().data);
+			if (lt->second->getUniform("ProjectionMatrix") != -1)
+				glUniformMatrix4fv(lt->second->getUniform("ProjectionMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetProjectionMatrix().data);
+			if(lt->second->getUniform("cameraPos") != -1)
+				glUniform3fv(lt->second->getUniform("cameraPos"), 1,
+					SceneManager::getInstance()->get("main")->FreeCamera->position.coordinates);
+			if(lt->second->getUniform("LightPosition") != -1)
+				glUniform3fv(lt->second->getUniform("LightPosition"), 1, LightPosition.coordinates);
+
+			lt->second->Disable();
+		}
+	}
+
+
+
+/*
 	waterShader->Enable();
 	glUniformMatrix4fv(waterShader->getUniform("ViewMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetCamera().data);
 	glUniformMatrix4fv(waterShader->getUniform("ProjectionMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetProjectionMatrix().data);
+	//glUniform3fv(waterShader->getUniform("LightPosition"),1,LightPosition.coordinates);
 	shader->Enable();
 	glUniformMatrix4fv(shader->getUniform("ViewMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetCamera().data);
 	glUniformMatrix4fv(shader->getUniform("ProjectionMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetProjectionMatrix().data);
@@ -425,7 +487,7 @@ void updateMatrixes() {
 	glUniformMatrix4fv(skyBoxShader->getUniform("ProjectionMatrix"), 1, GL_FALSE, SceneManager::getInstance()->get("main")->FreeCamera->GetProjectionMatrix().data);
 	//glUniformMatrix4fv(skyBoxShader->getUniform("ProjectionMatrix"), 1, GL_FALSE, Matrix4::ProjectionMatrix(PI/2, (float)WinX/(float)WinY, 1, 50).data);
 	skyBoxShader->Disable();
-
+	*/
 }
 
 void drawSceneWithReflections()
@@ -490,12 +552,27 @@ void debugMode() {
 	waterNode->setActive(false);
 	glViewport(0, 0, WinX*0.5, WinY*0.5);
 	tree->setShaderProgram(noTexDebugger);
+	rock1->setShaderProgram(noTexDebugger);
+	rock2->setShaderProgram(noTexDebugger);
+	rock3->setShaderProgram(noTexDebugger);
+	rock4->setShaderProgram(noTexDebugger);
+	rock5->setShaderProgram(noTexDebugger);
 	SceneManager::getInstance()->get("main")->Draw(LightPosition);
 	glViewport(WinX*0.5, 0, WinX*0.5, WinY*0.5);
 	tree->setShaderProgram(normalDebugger);
+	rock1->setShaderProgram(normalDebugger);
+	rock2->setShaderProgram(normalDebugger);
+	rock3->setShaderProgram(normalDebugger);
+	rock4->setShaderProgram(normalDebugger);
+	rock5->setShaderProgram(normalDebugger);
 	SceneManager::getInstance()->get("main")->Draw(LightPosition);
 	//drawSceneWithReflections();
 	tree->setShaderProgram(shader);
+	rock1->setShaderProgram(shader);
+	rock2->setShaderProgram(shader);
+	rock3->setShaderProgram(shader);
+	rock4->setShaderProgram(shader);
+	rock5->setShaderProgram(shader);
 	//left top
 	glViewport(0, WinY*0.5, WinX*0.5, WinY*0.5);
 	
@@ -732,9 +809,7 @@ void init(int argc, char* argv[])
 	setupOpenGL();
 	setupCallbacks();
 	createShaderProgram();
-	
-	//createSimpleMesh();
-	//createSimpleScene();
+	createTextures();
 	createMesh();
 	createCubeScene();
 

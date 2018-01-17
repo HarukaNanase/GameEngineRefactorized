@@ -117,6 +117,12 @@
     <ClInclude Include="SkyBox\include\SkyBox.h">
       <Filter>Header Files\SkyBox</Filter>
     </ClInclude>
+    <ClInclude Include="Managers\include\TextureManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers\include\ShaderManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Cameras\src\Camera.cpp">
@@ -175,6 +181,12 @@
     </ClCompile>
     <ClCompile Include="SkyBox\src\SkyBox.cpp">
       <Filter>Source Files\SkyBox</Filter>
+    </ClCompile>
+    <ClCompile Include="Managers\src\TextureManager.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Managers\src\ShaderManager.cpp">
+      <Filter>Source Files\Managers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

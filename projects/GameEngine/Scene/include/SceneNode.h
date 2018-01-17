@@ -23,15 +23,13 @@ public:
 	Matrix4 DrawMatrix;
 	//children pointers
 	std::vector <SceneNode*> children;
+	std::map<std::string, Texture*> textures;
 	//methods
 	//Changes the direction of this node according to an Angle (In degrees) and a vec4 (the axis)
 	void ChangeDirection(float angle, Vector4 axis);
-	//Texture of this node
-	Texture* tex;
-	Texture* tex2;
 	//Material of this node
 	Material* material;
-	//Set Active - False->Won't be drawn; True->Will be drawn;
+	//Flags a node for drawability
 	void setActive(bool b);
 	//Set Mesh -> Set Mesh Pointer for this node
 	void setMesh(Mesh* newMesh);
@@ -53,6 +51,9 @@ public:
 	void Release();
 	//Destroy this node.
 	void Destroy();
+	//Add a texture by the name used in the shader
+	void addTexture(std::string NameInShader, Texture* tex);
+
 
 };
 #endif
